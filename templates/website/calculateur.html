@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load static tile_extras %}
+{% block title %}Calculateur de dimensionnement solaire · {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<section class="section section--navy section--tight">
+  <div class="container">
+    <span class="eyebrow eyebrow--onnavy">{% icon 'calculator' %} Outil gratuit</span>
+    <h1>Calculateur de dimensionnement solaire</h1>
+    <p class="lead" style="color:#cdd9ef">Listez vos appareils et leur usage. L'outil estime la puissance des panneaux, la capacité de batterie, l'onduleur nécessaire et un budget indicatif. Tout se calcule instantanément.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container cols-12" style="align-items:flex-start; gap:32px">
+    <!-- ENTRÉES -->
+    <div class="col-7" data-reveal>
+      <div class="card">
+        <div class="help-row mb-3">
+          <h3 style="margin:0">Vos appareils</h3>
+          <div class="flex gap-1 items-center">
+            <select id="preset" class="select" style="width:auto;min-width:180px" aria-label="Ajouter un appareil"></select>
+            <button class="btn btn--navy btn--sm" id="add-appliance" type="button">{% icon 'plus' %} Ajouter</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="table" id="appliance-table">
+            <thead><tr><th>Appareil</th><th style="width:90px">Watts</th><th style="width:74px">Qté</th><th style="width:96px">Heures/j</th><th style="width:110px">Wh/jour</th><th style="width:44px"></th></tr></thead>
+            <tbody id="appliance-body"></tbody>
+          </table>
+        </div>
+        <p class="hint mt-2">{% icon 'info' %} Modifiez librement la puissance, la quantité et les heures d'utilisation par jour.</p>
+      </div>
+
+      <div class="card mt-3">
+        <h3 class="mb-3">Paramètres du système</h3>
+        <div class="grid grid-2">
+          <div class="field">
+            <label for="psh">Ensoleillement (heures de pointe/jour)</label>
+            <select id="psh" class="select">
+              <option value="6">Très ensoleillé (6 h)</option>
+              <option value="5.5" selected>Mali, moyenne (5,5 h)</option>
+              <option value="5">Saison des pluies (5 h)</option>
+              <option value="4.5">Faible (4,5 h)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="voltage">Tension du système</label>
+            <select id="voltage" class="select">
+              <option value="12">12 V (petite installation)</option>
+              <option value="24" selected>24 V (usage courant)</option>
+              <option value="48">48 V (forte puissance)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="battype">Type de batterie</label>
+            <select id="battype" class="select">
+              <option value="0.5" selected>Plomb / GEL (décharge 50%)</option>
+              <option value="0.8">Lithium (décharge 80%)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="autonomy">Autonomie souhaitée</label>
+            <select id="autonomy" class="select">
+              <option value="1" selected>1 jour</option>
+              <option value="2">2 jours</option>
+              <option value="3">3 jours</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="panelwp">Puissance d'un panneau (Wc)</label>
+            <input type="number" id="panelwp" value="450" min="100" step="10">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RÉSULTATS -->
+    <div class="col-5" data-reveal data-delay="2">
+      <div class="card card--hard" style="position:sticky; top:96px">
+        <span class="eyebrow">{% icon 'gauge' %} Votre dimensionnement</span>
+        <div class="text-center" style="padding:14px 0; border-bottom:1px solid var(--line)">
+          <div class="text-muted" style="font-size:.9rem">Consommation journalière estimée</div>
+          <div class="stat__num" id="r-daily" style="color:var(--navy)">0 kWh</div>
+        </div>
+
+        <div class="flow mt-3">
+          <div class="flex gap-2 items-center"><span class="icon-badge icon-badge--sm">{% icon 'panel' %}</span><div style="flex:1"><strong class="text-navy">Panneaux solaires</strong><div class="text-muted" id="r-panels" style="font-size:.92rem">·</div></div><div class="badge badge--accent" id="r-pv">·</div></div>
+          <div class="flex gap-2 items-center"><span class="icon-badge icon-badge--sm">{% icon 'battery' %}</span><div style="flex:1"><strong class="text-navy">Parc de batteries</strong><div class="text-muted" id="r-batt-sub" style="font-size:.92rem">·</div></div><div class="badge badge--info" id="r-batt">·</div></div>
+          <div class="flex gap-2 items-center"><span class="icon-badge icon-badge--sm">{% icon 'plug' %}</span><div style="flex:1"><strong class="text-navy">Onduleur recommandé</strong><div class="text-muted" id="r-inv-sub" style="font-size:.92rem">·</div></div><div class="badge badge--success" id="r-inv">·</div></div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="flex justify-between items-center">
+          <div><div class="text-muted" style="font-size:.85rem">Budget indicatif</div><div style="font-family:var(--font-display);font-weight:700;font-size:1.5rem;color:var(--orange-600)" id="r-budget">·</div></div>
+          <span class="icon-badge icon-badge--orange">{% icon 'coins' %}</span>
+        </div>
+        <p class="hint mt-2">Estimation indicative, hors pose détaillée. Le devis final est confirmé par un technicien.</p>
+        <a href="{% url 'interventions:request_create' %}" class="btn btn--primary btn--block btn--lg mt-3">{% icon 'bolt' %} Demander une installation</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/calculateur.js' %}" defer></script>
+{% endblock %}

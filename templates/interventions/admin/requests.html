@@ -1,0 +1,82 @@
+{% extends 'app/base_admin.html' %}
+{% load tile_extras %}
+{% block title %}Demandes · Administration{% endblock %}
+
+{% block app %}
+<div class="page-head">
+  <div>
+    <h1>Demandes</h1>
+    <p class="sub">Toutes les demandes d'intervention reçues sur la plateforme.</p>
+  </div>
+</div>
+
+<div class="filters">
+  <a href="{% url 'interventions:admin_requests' %}" class="filter {% if not f %}is-active{% endif %}">Toutes</a>
+  {% for val, label in statuses %}
+  <a href="?f={{ val }}" class="filter {% if f == val %}is-active{% endif %}">{{ label }}</a>
+  {% endfor %}
+</div>
+
+{% if requests %}
+<div class="table-wrap">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Référence</th>
+        <th>Client</th>
+        <th>Service</th>
+        <th>Statut</th>
+        <th>Technicien</th>
+        <th>Estimation</th>
+        <th>Date</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in requests %}
+      <tr>
+        <td class="ref nowrap">{{ r.reference }}</td>
+        <td>{{ r.client.display_name }}</td>
+        <td>{{ r.skill.name|default:"·" }}</td>
+        <td><span class="badge badge--{{ r.tone }} badge--dot">{{ r.get_status_display }}</span></td>
+        <td>
+          {% if r.mission %}
+            {{ r.mission.technician.user.display_name }}
+          {% else %}
+            <span class="text-muted">Non affecté</span>
+          {% endif %}
+        </td>
+        <td class="nowrap">
+          {% if r.estimated_cost %}
+            {{ r.estimated_cost|fcfa }}
+          {% else %}
+            <span class="text-muted">·</span>
+          {% endif %}
+        </td>
+        <td class="text-muted nowrap">{{ r.created_at|date:"d/m/Y" }}</td>
+        <td class="nowrap">
+          {% if not r.mission %}
+          <form method="post" action="{% url 'interventions:admin_assign' pk=r.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn--primary btn--sm">{% icon 'handshake' %} Affecter</button>
+          </form>
+          {% else %}
+          <span class="badge badge--success"><span class="flex items-center gap-1">{% icon 'check' %} Affecté</span></span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty-state">
+  <span class="icon-badge">{% icon 'list' %}</span>
+  <h3>Aucune demande{% if f %} pour ce statut{% endif %}</h3>
+  <p>{% if f %}Essayez un autre filtre ou attendez de nouvelles demandes.{% else %}Les demandes des clients apparaîtront ici dès leur soumission.{% endif %}</p>
+  {% if f %}
+  <a href="{% url 'interventions:admin_requests' %}" class="btn btn--ghost mt-3">{% icon 'x' %} Effacer le filtre</a>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

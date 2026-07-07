@@ -1,0 +1,41 @@
+{% extends 'app/base_client.html' %}
+{% load tile_extras %}
+{% block title %}Paiement {{ req.reference }}{% endblock %}
+
+{% block app %}
+<div class="page-head"><div>
+  <a href="{% url 'interventions:request_detail' pk=req.pk %}" class="linkline mb-2" style="font-size:.9rem">{% icon 'chevron-right' 'flip' %} Retour au suivi</a>
+  <h1>Régler l'intervention</h1><p class="sub">{{ req.reference }} · {{ req.title }}</p>
+</div></div>
+
+<div class="cols-12" style="align-items:flex-start;gap:28px">
+  <div class="col-7">
+    <form method="post">{% csrf_token %}
+      <div class="card mb-3">
+        <h3 class="mb-3">Moyen de paiement</h3>
+        <div class="choice-grid">
+          {% for val, label in form.method.field.choices %}
+          <label class="choice"><input type="radio" name="method" value="{{ val }}" {% if forloop.first %}checked{% endif %}>
+            <span class="choice__box">
+              <span class="icon-badge icon-badge--sm {% if val == 'cash' %}icon-badge--cream{% else %}icon-badge--orange{% endif %}">{% if val == 'cash' %}{% icon 'coins' %}{% else %}{% icon 'phone' %}{% endif %}</span>
+              <span><h4>{{ label }}</h4><p>{% if val == 'cash' %}Réglé sur place, confirmé par l'administration.{% else %}Paiement mobile sécurisé, confirmation immédiate.{% endif %}</p></span>
+            </span></label>
+          {% endfor %}
+        </div>
+      </div>
+      <button type="submit" class="btn btn--primary btn--lg">{% icon 'check' %} Confirmer le paiement</button>
+    </form>
+  </div>
+  <div class="col-5">
+    <div class="card card--hard">
+      <span class="eyebrow">{% icon 'coins' %} Montant à régler</span>
+      <div class="stat__num" style="color:var(--navy)">{{ amount|fcfa }}</div>
+      <div class="divider"></div>
+      <div class="flex justify-between mb-2"><span class="text-muted">Service</span><strong>{{ req.skill.name }}</strong></div>
+      <div class="flex justify-between mb-2"><span class="text-muted">Technicien</span><strong>{{ mission.technician.user.display_name }}</strong></div>
+      <div class="flex justify-between"><span class="text-muted">Référence</span><span class="ref">{{ req.reference }}</span></div>
+      <p class="hint mt-3">{% icon 'shield' %} Vos données de paiement sont protégées. Aucune information bancaire n'est stockée.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

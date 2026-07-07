@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load tile_extras %}
+{% block title %}Notifications · TILE ÉNERGIE{% endblock %}
+
+{% block content %}
+<section class="section section--tight">
+  <div class="container" style="max-width:760px">
+
+    <div class="page-head">
+      <div>
+        <h1>Notifications</h1>
+        <p class="sub">Vos derniers avis, mises à jour et alertes.</p>
+      </div>
+      <div class="flex gap-2 items-center wrap">
+        <a href="{% url dashboard_url %}" class="btn btn--ghost btn--sm">{% icon 'chevron-right' 'flip' %} Retour au tableau de bord</a>
+        <form method="post" action="{% url 'interventions:notifications' %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn--navy btn--sm">{% icon 'check' %} Tout marquer comme lu</button>
+        </form>
+      </div>
+    </div>
+
+    {% if notifs %}
+    <div class="notif-list">
+      {% for n in notifs %}
+      <div class="notif-item{% if not n.is_read %} unread{% endif %}">
+        <span class="icon-badge icon-badge--sm">{% icon n.icon %}</span>
+        <div>
+          <div class="t">
+            {% if n.url %}
+              <a href="{{ n.url }}">{{ n.title }}</a>
+            {% else %}
+              {{ n.title }}
+            {% endif %}
+          </div>
+          <div>{{ n.body }}</div>
+          <div class="time">Il y a {{ n.created_at|timesince }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <span class="icon-badge">{% icon 'bell' %}</span>
+      <h3>Aucune notification</h3>
+      <p>Vous n'avez pas encore reçu de notifications. Elles apparaîtront ici à chaque mise à jour sur vos demandes.</p>
+    </div>
+    {% endif %}
+
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+{% load tile_extras %}
+{% block title %}Mon profil · TILE ÉNERGIE{% endblock %}
+
+{% block content %}
+<section class="section section--tight">
+  <div class="container" style="max-width:820px">
+
+    <div class="flex items-center gap-3 mb-4 wrap">
+      <span class="avatar avatar--lg avatar--orange">{{ user.initials }}</span>
+      <div style="flex:1">
+        <h1 style="font-size:clamp(1.5rem,3vw,2rem);margin-bottom:4px">{{ user.display_name }}</h1>
+        <span class="badge badge--info">{{ user.get_role_display }}</span>
+      </div>
+      <a href="{% url dashboard_url %}" class="linkline">
+        {% icon 'chevron-right' 'flip' %} Retour au tableau de bord
+      </a>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+
+      <div class="card card--hard mb-3">
+        <h3 class="mb-3">Informations personnelles</h3>
+
+        <div class="grid grid-2" style="gap:16px">
+          <div class="field{% if pform.first_name.errors %} field--error{% endif %}">
+            <label for="{{ pform.first_name.id_for_label }}">{{ pform.first_name.label }}</label>
+            {{ pform.first_name }}
+            {% if pform.first_name.errors %}
+            <ul class="errlist">
+              {% for e in pform.first_name.errors %}
+              <li>{% icon 'alert' %}{{ e }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </div>
+
+          <div class="field{% if pform.last_name.errors %} field--error{% endif %}">
+            <label for="{{ pform.last_name.id_for_label }}">{{ pform.last_name.label }}</label>
+            {{ pform.last_name }}
+            {% if pform.last_name.errors %}
+            <ul class="errlist">
+              {% for e in pform.last_name.errors %}
+              <li>{% icon 'alert' %}{{ e }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="field{% if pform.phone.errors %} field--error{% endif %}">
+          <label for="{{ pform.phone.id_for_label }}">{{ pform.phone.label }}</label>
+          {{ pform.phone }}
+          {% if pform.phone.errors %}
+          <ul class="errlist">
+            {% for e in pform.phone.errors %}
+            <li>{% icon 'alert' %}{{ e }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+
+        <div class="field{% if pform.city.errors %} field--error{% endif %}">
+          <label for="{{ pform.city.id_for_label }}">{{ pform.city.label }}</label>
+          {{ pform.city }}
+          {% if pform.city.errors %}
+          <ul class="errlist">
+            {% for e in pform.city.errors %}
+            <li>{% icon 'alert' %}{{ e }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+
+        <div class="field{% if pform.avatar.errors %} field--error{% endif %}">
+          <label for="{{ pform.avatar.id_for_label }}">{{ pform.avatar.label }}</label>
+          {{ pform.avatar }}
+          {% if pform.avatar.errors %}
+          <ul class="errlist">
+            {% for e in pform.avatar.errors %}
+            <li>{% icon 'alert' %}{{ e }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if extra %}
+      <div class="card card--hard mb-3">
+        <h3 class="mb-3">Détails du profil</h3>
+
+        {% if extra.bio %}
+        <div class="field{% if extra.bio.errors %} field--error{% endif %}">
+          <label for="{{ extra.bio.id_for_label }}">{{ extra.bio.label }}</label>
+          {{ extra.bio }}
+          {% if extra.bio.errors %}
+          <ul class="errlist">
+            {% for e in extra.bio.errors %}
+            <li>{% icon 'alert' %}{{ e }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        {% if extra.skills %}
+        <div class="field{% if extra.skills.errors %} field--error{% endif %}">
+          <label>{{ extra.skills.label }}</label>
+          <div class="flow">
+            {{ extra.skills }}
+          </div>
+          {% if extra.skills.errors %}
+          <ul class="errlist">
+            {% for e in extra.skills.errors %}
+            <li>{% icon 'alert' %}{{ e }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        {% if extra.zones %}
+        <div class="field{% if extra.zones.errors %} field--error{% endif %}">
+          <label for="{{ extra.zones.id_for_label }}">{{ extra.zones.label }}</label>
+          {{ extra.zones }}
+          {% if extra.zones.errors %}
+          <ul class="errlist">
+            {% for e in extra.zones.errors %}
+            <li>{% icon 'alert' %}{{ e }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        {% if extra.experience_years %}
+        <div class="field{% if extra.experience_years.errors %} field--error{% endif %}">
+          <label for="{{ extra.experience_years.id_for_label }}">{{ extra.experience_years.label }}</label>
+          {{ extra.experience_years }}
+          {% if extra.experience_years.errors %}
+          <ul class="errlist">
+            {% for e in extra.experience_years.errors %}
+            <li>{% icon 'alert' %}{{ e }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        {% if extra.hourly_indication %}
+        <div class="field{% if extra.hourly_indication.errors %} field--error{% endif %}">
+          <label for="{{ extra.hourly_indication.id_for_label }}">{{ extra.hourly_indication.label }}</label>
+          {{ extra.hourly_indication }}
+          {% if extra.hourly_indication.errors %}
+          <ul class="errlist">
+            {% for e in extra.hourly_indication.errors %}
+            <li>{% icon 'alert' %}{{ e }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        {% if extra.address %}
+        <div class="field{% if extra.address.errors %} field--error{% endif %}">
+          <label for="{{ extra.address.id_for_label }}">{{ extra.address.label }}</label>
+          {{ extra.address }}
+          {% if extra.address.errors %}
+          <ul class="errlist">
+            {% for e in extra.address.errors %}
+            <li>{% icon 'alert' %}{{ e }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        {% if extra.installation_note %}
+        <div class="field{% if extra.installation_note.errors %} field--error{% endif %}">
+          <label for="{{ extra.installation_note.id_for_label }}">{{ extra.installation_note.label }}</label>
+          {{ extra.installation_note }}
+          {% if extra.installation_note.errors %}
+          <ul class="errlist">
+            {% for e in extra.installation_note.errors %}
+            <li>{% icon 'alert' %}{{ e }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+        {% endif %}
+
+      </div>
+      {% endif %}
+
+      <button type="submit" class="btn btn--primary btn--lg btn--block">
+        {% icon 'check' %} Enregistrer les modifications
+      </button>
+
+    </form>
+  </div>
+</section>
+{% endblock %}

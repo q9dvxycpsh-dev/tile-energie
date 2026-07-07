@@ -1,0 +1,51 @@
+{% extends 'app/base_client.html' %}
+{% load tile_extras %}
+{% block title %}Évaluer {{ req.reference }}{% endblock %}
+
+{% block app %}
+<div class="page-head"><div>
+  <a href="{% url 'interventions:request_detail' pk=req.pk %}" class="linkline mb-2" style="font-size:.9rem">{% icon 'chevron-right' 'flip' %} Retour au suivi</a>
+  <h1>Évaluer le service</h1><p class="sub">{{ req.reference }} · {{ mission.technician.user.display_name }}</p>
+</div></div>
+
+<div style="max-width:620px">
+  <form method="post">{% csrf_token %}
+    <div class="card card--hard mb-3 text-center">
+      <h3 class="mb-3">Quelle note donnez-vous ?</h3>
+      <div class="stars" id="rating-stars" style="justify-content:center;gap:8px;cursor:pointer">
+        {% for i in "12345" %}
+        <button type="button" class="rate-star" data-v="{{ forloop.counter }}" aria-label="Note {{ forloop.counter }}" style="background:none;border:0;color:var(--line)">
+          <svg class="icon" aria-hidden="true" style="width:40px;height:40px"><use href="#i-star"></use></svg>
+        </button>
+        {% endfor %}
+      </div>
+      <p class="text-muted mt-2" id="rating-label">Touchez les étoiles</p>
+      <input type="hidden" name="rating" id="id_rating" value="{{ form.rating.value|default:5 }}">
+    </div>
+    <div class="card mb-3">
+      <div class="field" style="margin:0">
+        <label for="{{ form.comment.id_for_label }}">Votre commentaire (optionnel)</label>{{ form.comment }}
+      </div>
+    </div>
+    <button type="submit" class="btn btn--primary btn--lg">{% icon 'check' %} Publier mon évaluation</button>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function(){
+  var stars = Array.prototype.slice.call(document.querySelectorAll('.rate-star'));
+  var input = document.getElementById('id_rating');
+  var label = document.getElementById('rating-label');
+  var labels = {1:'Décevant',2:'Moyen',3:'Correct',4:'Très bien',5:'Excellent'};
+  function paint(v){ stars.forEach(function(s){ s.style.color = (parseInt(s.dataset.v) <= v) ? 'var(--yellow)' : 'var(--line)'; }); label.textContent = labels[v] || ''; }
+  stars.forEach(function(s){
+    s.addEventListener('mouseenter', function(){ paint(parseInt(s.dataset.v)); });
+    s.addEventListener('click', function(){ input.value = s.dataset.v; paint(parseInt(s.dataset.v)); });
+  });
+  document.getElementById('rating-stars').addEventListener('mouseleave', function(){ paint(parseInt(input.value)); });
+  paint(parseInt(input.value) || 5);
+})();
+</script>
+{% endblock %}

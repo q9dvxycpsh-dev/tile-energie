@@ -1,0 +1,69 @@
+{% extends 'app/base_client.html' %}
+{% load tile_extras %}
+{% block title %}Tableau de bord · Espace client{% endblock %}
+
+{% block app %}
+<div class="page-head">
+  <div>
+    <h1>Bonjour, {{ user.first_name|default:user.display_name }}</h1>
+    <p class="sub">Gérez vos demandes d'intervention solaire en un coup d'oeil.</p>
+  </div>
+  <a href="{% url 'interventions:request_create' %}" class="btn btn--primary">{% icon 'bolt' %} Nouvelle demande</a>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi"><div class="kpi__top"><span class="kpi__label">Demandes au total</span><span class="icon-badge icon-badge--sm">{% icon 'list' %}</span></div><div class="kpi__num">{{ kpi_total }}</div></div>
+  <div class="kpi"><div class="kpi__top"><span class="kpi__label">En cours</span><span class="icon-badge icon-badge--sm">{% icon 'route' %}</span></div><div class="kpi__num">{{ kpi_active }}</div></div>
+  <div class="kpi"><div class="kpi__top"><span class="kpi__label">Terminées</span><span class="icon-badge icon-badge--sm">{% icon 'check-circle' %}</span></div><div class="kpi__num">{{ kpi_done }}</div></div>
+  <div class="kpi"><div class="kpi__top"><span class="kpi__label">Assistance</span><span class="icon-badge icon-badge--sm">{% icon 'headset' %}</span></div><div class="kpi__num" style="font-size:1.2rem;margin-top:16px"><a href="{% url 'website:contact' %}" class="linkline">Contacter {% icon 'arrow-right' %}</a></div></div>
+</div>
+
+{% if current %}
+<div class="card card--hard mb-4">
+  <div class="help-row mb-3">
+    <div><span class="badge badge--{{ current.tone }} badge--dot">{{ current.get_status_display }}</span> <span class="ref" style="margin-left:8px">{{ current.reference }}</span></div>
+    <a href="{% url 'interventions:request_detail' pk=current.pk %}" class="linkline">Suivre en temps réel {% icon 'arrow-right' %}</a>
+  </div>
+  <h3>{{ current.title }}</h3>
+  <p class="text-muted">{{ current.skill.name }} · {{ current.address|default:"Position enregistrée" }}</p>
+  {% if current.mission %}
+  <div class="divider"></div>
+  <div class="flex gap-2 items-center wrap">
+    <span class="avatar avatar--orange">{{ current.mission.technician.user.initials }}</span>
+    <div style="flex:1"><strong class="text-navy">{{ current.mission.technician.user.display_name }}</strong>
+      <div class="stars">{% for s in current.mission.technician.rating_avg|to_stars %}{% if s == 'full' %}{% icon 'star' %}{% else %}{% icon 'star-outline' %}{% endif %}{% endfor %}</div></div>
+    <a href="{% url 'interventions:request_detail' pk=current.pk %}" class="btn btn--navy btn--sm">{% icon 'navigation' %} Voir le suivi</a>
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+<div class="card">
+  <div class="help-row mb-3"><h3 style="margin:0">Mes dernières demandes</h3><a href="{% url 'interventions:client_history' %}" class="linkline">Tout voir {% icon 'arrow-right' %}</a></div>
+  {% if requests %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Référence</th><th>Service</th><th>Statut</th><th>Date</th><th></th></tr></thead>
+      <tbody>
+        {% for r in requests %}
+        <tr>
+          <td class="ref">{{ r.reference }}</td>
+          <td>{{ r.skill.name|default:"·" }}<div class="text-muted" style="font-size:.85rem">{{ r.title|truncatechars:34 }}</div></td>
+          <td><span class="badge badge--{{ r.tone }}">{{ r.get_status_display }}</span></td>
+          <td class="text-muted nowrap">{{ r.created_at|date:"d/m/Y" }}</td>
+          <td><a href="{% url 'interventions:request_detail' pk=r.pk %}" class="btn btn--ghost btn--sm">Détail</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <span class="icon-badge">{% icon 'bolt' %}</span>
+    <h3>Aucune demande pour l'instant</h3>
+    <p>Lancez votre première demande de dépannage ou d'installation en moins d'une minute.</p>
+    <a href="{% url 'interventions:request_create' %}" class="btn btn--primary mt-3">{% icon 'plus' %} Créer une demande</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

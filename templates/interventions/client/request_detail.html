@@ -1,0 +1,147 @@
+{% extends 'app/base_client.html' %}
+{% load static tile_extras %}
+{% block title %}{{ req.reference }} · Suivi{% endblock %}
+{% block head_extra %}{% if mission %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+{% endif %}{% endblock %}
+
+{% block app %}
+<div class="page-head">
+  <div>
+    <a href="{% url 'interventions:client_history' %}" class="linkline mb-2" style="font-size:.9rem">{% icon 'chevron-right' 'flip' %} Mes demandes</a>
+    <h1>{{ req.title }}</h1>
+    <p class="sub"><span class="ref">{{ req.reference }}</span> · {{ req.skill.name }} · créée le {{ req.created_at|date:"d/m/Y à H:i" }}</p>
+  </div>
+  <span class="badge badge--{{ req.tone }} badge--dot" style="font-size:.9rem;padding:8px 14px">{{ req.get_status_display }}</span>
+</div>
+
+<div class="cols-12" style="align-items:flex-start; gap:28px">
+  <div class="col-7">
+    {% if mission and req.status != 'annulee' %}
+    <div class="card mb-3">
+      <div class="help-row mb-2"><h3 style="margin:0">Suivi en temps réel</h3><span class="badge badge--accent" id="eta-badge">{% icon 'clock' %} <span id="eta">·</span></span></div>
+      <div id="track-map" class="map" aria-label="Suivi du technicien sur la carte"></div>
+      <div class="map-legend">
+        <span><i style="background:var(--orange)"></i> Technicien</span>
+        <span><i style="background:var(--navy)"></i> Votre position</span>
+        <span class="text-muted" id="track-status">{{ req.get_status_display }}</span>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="card mb-3">
+      <h3 class="mb-3">Description</h3>
+      <p>{{ req.description|linebreaksbr }}</p>
+      {% if req.address %}<p class="text-muted mt-2 flex gap-1 items-center">{% icon 'map-pin' %} {{ req.address }}</p>{% endif %}
+      {% if photos %}
+      <div class="divider"></div>
+      <div class="grid grid-3" style="gap:12px">
+        {% for p in photos %}<a href="{{ p.image.url }}" target="_blank" class="rounded-img"><img src="{{ p.image.url }}" alt="Photo demande" style="aspect-ratio:1;object-fit:cover"></a>{% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <h3 class="mb-3">Historique</h3>
+      <div class="track">
+        {% for e in events %}
+        <div class="track__step done">
+          <span class="track__dot" style="background:var(--navy);border-color:var(--navy);color:#fff">{% icon 'check' %}</span>
+          <div><div class="track__label">{{ e.get_status_display }}</div><div class="track__time">{{ e.created_at|date:"d/m H:i" }}{% if e.note %} · {{ e.note }}{% endif %}</div></div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-5">
+    <!-- Progression -->
+    <div class="card mb-3">
+      <h3 class="mb-3">Progression</h3>
+      <div class="track">
+        {% for s in steps %}
+        <div class="track__step {{ s.state }}">
+          <span class="track__dot">{% if s.state == 'done' %}{% icon 'check' %}{% else %}{% icon 'clock' %}{% endif %}</span>
+          <div><div class="track__label">{{ s.label }}</div></div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% if mission %}
+    <div class="card mb-3">
+      <h4 class="mb-2">Votre technicien</h4>
+      <div class="flex gap-2 items-center">
+        <span class="avatar avatar--lg avatar--orange">{{ mission.technician.user.initials }}</span>
+        <div style="flex:1"><strong class="text-navy">{{ mission.technician.user.display_name }}</strong>
+          <div class="stars">{% for st in mission.technician.rating_avg|to_stars %}{% if st == 'full' %}{% icon 'star' %}{% else %}{% icon 'star-outline' %}{% endif %}{% endfor %}</div>
+          <div class="text-muted" style="font-size:.85rem">{{ mission.technician.completed_missions }} missions réalisées</div>
+        </div>
+      </div>
+      {% if mission.technician.user.phone %}<a href="tel:{{ mission.technician.user.phone }}" class="btn btn--navy btn--block btn--sm mt-3">{% icon 'phone' %} Appeler</a>{% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Coût + actions -->
+    <div class="card card--hard">
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-muted">{% if mission.final_cost %}Montant{% else %}Estimation{% endif %}</span>
+        <strong style="font-family:var(--font-display);font-size:1.4rem;color:var(--orange-600)">{{ mission.final_cost|default:req.estimated_cost|fcfa }}</strong>
+      </div>
+      {% if payment %}
+        <div class="divider"></div>
+        <div class="flex justify-between items-center"><span>Paiement {{ payment.get_method_display }}</span><span class="badge badge--{{ payment.tone }}">{{ payment.get_state_display }}</span></div>
+      {% endif %}
+      <div class="flow mt-3">
+        {% if can_pay %}<a href="{% url 'interventions:request_pay' pk=req.pk %}" class="btn btn--primary btn--block">{% icon 'coins' %} Payer l'intervention</a>{% endif %}
+        {% if can_review %}<a href="{% url 'interventions:request_review' pk=req.pk %}" class="btn btn--navy btn--block">{% icon 'star' %} Évaluer le service</a>{% endif %}
+        {% if review %}<div class="flex gap-1 items-center text-muted">{% icon 'check-circle' %} Évalué : <span class="stars">{% for st in review.rating|to_stars %}{% if st == 'full' %}{% icon 'star' %}{% else %}{% icon 'star-outline' %}{% endif %}{% endfor %}</span></div>{% endif %}
+        {% if req.is_cancellable %}
+        <form method="post" action="{% url 'interventions:request_cancel' pk=req.pk %}" onsubmit="return confirm('Annuler cette demande ?');">{% csrf_token %}
+          <button type="submit" class="btn btn--ghost btn--block" style="border-color:var(--danger);color:var(--danger)">{% icon 'x-circle' %} Annuler la demande</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}{% if mission and req.status != 'annulee' %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+(function(){
+  var reqLat = parseFloat('{{ req.lat|default:"12.6392" }}');
+  var reqLng = parseFloat('{{ req.lng|default:"-8.0029" }}');
+  if (isNaN(reqLat)) reqLat = 12.6392;
+  if (isNaN(reqLng)) reqLng = -8.0029;
+
+  var map = L.map('track-map', {scrollWheelZoom:false}).setView([reqLat, reqLng], 14);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:19, attribution:'&copy; OpenStreetMap'}).addTo(map);
+  setTimeout(function(){ map.invalidateSize(); }, 250);
+
+  var cIcon = L.divIcon({className:'', html:'<div class="cli-marker"></div>', iconSize:[18,18], iconAnchor:[9,16]});
+  var tIcon = L.divIcon({className:'', html:'<div class="tech-marker busy" style="width:24px;height:24px"></div>', iconSize:[24,24], iconAnchor:[12,12]});
+  L.marker([reqLat, reqLng], {icon:cIcon}).addTo(map).bindPopup('Votre position');
+
+  var tMarker = null, line = null;
+  var url = "{% url 'interventions:mission_position_api' pk=req.pk %}";
+  var active = {% if req.status == 'en_route' or req.status == 'acceptee' or req.status == 'sur_site' %}true{% else %}false{% endif %};
+
+  function poll(){
+    fetch(url).then(function(r){return r.json();}).then(function(d){
+      if(!d.ok || d.tech_lat == null) return;
+      var p = [d.tech_lat, d.tech_lng];
+      if(tMarker){ tMarker.setLatLng(p); } else { tMarker = L.marker(p, {icon:tIcon}).addTo(map).bindPopup(d.tech); }
+      if(line){ map.removeLayer(line); }
+      line = L.polyline([p, [reqLat, reqLng]], {color:'#F77818', weight:3, dashArray:'6 8'}).addTo(map);
+      var eta = document.getElementById('eta');
+      if(eta){ eta.textContent = (d.eta != null && d.eta > 0) ? ('Arrivée ~ ' + d.eta + ' min') : (d.status === 'sur_site' ? 'Sur site' : 'Terminé'); }
+      var ts = document.getElementById('track-status'); if(ts){ ts.textContent = d.status_label; }
+    }).catch(function(){});
+  }
+  poll();
+  if(active){ setInterval(poll, 5000); }
+})();
+</script>
+{% endif %}{% endblock %}

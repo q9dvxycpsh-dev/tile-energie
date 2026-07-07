@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load tile_extras %}
+{% block footer %}{% endblock %}
+{% block chatbot %}{% endblock %}
+{% block content %}
+<div class="app">
+  <aside class="side">
+    <div class="side__title">Espace technicien</div>
+    <a href="{% url 'interventions:tech_dashboard' %}" class="side__link">{% icon 'grid' %} Tableau de bord</a>
+    <a href="{% url 'interventions:tech_available' %}" class="side__link">{% icon 'bolt' %} Demandes disponibles</a>
+    <a href="{% url 'interventions:tech_earnings' %}" class="side__link">{% icon 'coins' %} Mes gains</a>
+    <a href="{% url 'interventions:tech_documents' %}" class="side__link">{% icon 'file' %} Mes documents</a>
+    <a href="{% url 'interventions:notifications' %}" class="side__link">{% icon 'bell' %} Notifications {% if nav_notif_unread %}<span class="side__badge">{{ nav_notif_unread }}</span>{% endif %}</a>
+    <a href="{% url 'accounts:profile' %}" class="side__link">{% icon 'user' %} Mon profil</a>
+  </aside>
+  <div class="main">{% block app %}{% endblock %}</div>
+</div>
+{% endblock %}

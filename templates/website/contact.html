@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load static tile_extras %}
+{% block title %}Contact · {{ SITE_NAME }}{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+{% endblock %}
+
+{% block content %}
+<section class="section section--navy section--tight">
+  <div class="container">
+    <span class="eyebrow eyebrow--onnavy">{% icon 'headset' %} Contact</span>
+    <h1>Parlons de votre besoin.</h1>
+    <p class="lead" style="color:#cdd9ef" >Une panne, un projet d'installation ou une question sur le réseau ? Écrivez-nous, on revient vers vous sous 24 heures.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container cols-12" style="align-items:flex-start">
+    <!-- FORM -->
+    <div class="col-6" data-reveal>
+      <div class="card card--hard">
+        <h3>Envoyer un message</h3>
+        <p class="text-muted mb-3">Tous les champs marqués sont requis.</p>
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <div class="grid grid-2" style="gap:0 16px">
+            <div class="field {% if form.name.errors %}field--error{% endif %}">
+              <label for="{{ form.name.id_for_label }}">Nom complet</label>{{ form.name }}
+              {% if form.name.errors %}<ul class="errlist">{% for e in form.name.errors %}<li>{% icon 'alert' %}{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+            <div class="field {% if form.phone.errors %}field--error{% endif %}">
+              <label for="{{ form.phone.id_for_label }}">Téléphone</label>{{ form.phone }}
+            </div>
+          </div>
+          <div class="field {% if form.email.errors %}field--error{% endif %}">
+            <label for="{{ form.email.id_for_label }}">Email</label>{{ form.email }}
+            {% if form.email.errors %}<ul class="errlist">{% for e in form.email.errors %}<li>{% icon 'alert' %}{{ e }}</li>{% endfor %}</ul>{% endif %}
+          </div>
+          <div class="field {% if form.subject.errors %}field--error{% endif %}">
+            <label for="{{ form.subject.id_for_label }}">Sujet</label>{{ form.subject }}
+          </div>
+          <div class="field {% if form.message.errors %}field--error{% endif %}">
+            <label for="{{ form.message.id_for_label }}">Message</label>{{ form.message }}
+            {% if form.message.errors %}<ul class="errlist">{% for e in form.message.errors %}<li>{% icon 'alert' %}{{ e }}</li>{% endfor %}</ul>{% endif %}
+          </div>
+          <button type="submit" class="btn btn--primary btn--block btn--lg">{% icon 'send' %} Envoyer le message</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- INFO + MAP -->
+    <div class="col-6">
+      <div class="grid" style="gap:16px">
+        <div class="card flex gap-2 items-center"><span class="icon-badge">{% icon 'map-pin' %}</span><div><strong class="text-navy">Adresse</strong><div class="text-muted">ACI 2000, Bamako, Mali</div></div></div>
+        <div class="grid grid-2" style="gap:16px">
+          <div class="card flex gap-2 items-center"><span class="icon-badge icon-badge--sm">{% icon 'phone' %}</span><div><strong class="text-navy">Téléphone</strong><div class="text-muted">+223 00 00 00 00</div></div></div>
+          <div class="card flex gap-2 items-center"><span class="icon-badge icon-badge--sm">{% icon 'clock' %}</span><div><strong class="text-navy">Horaires</strong><div class="text-muted">7j/7, 7h à 21h</div></div></div>
+        </div>
+      </div>
+      <div class="mt-3">
+        <div id="contact-map" class="map" role="img" aria-label="Carte de localisation de TILE ÉNERGIE à Bamako"></div>
+        <div class="map-legend"><span><i style="background:var(--orange)"></i> Siège TILE ÉNERGIE</span><span class="text-muted">Bamako, Mali</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+(function(){
+  var c = 12.6392, lng = -8.0029; // ACI 2000, Bamako
+  var map = L.map('contact-map', {scrollWheelZoom:false}).setView([c, lng], 14);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19, attribution: '&copy; OpenStreetMap'
+  }).addTo(map);
+  setTimeout(function(){ map.invalidateSize(); }, 250);
+  var icon = L.divIcon({className:'', html:'<div class="tech-marker busy" style="width:24px;height:24px"></div>', iconSize:[24,24], iconAnchor:[12,12]});
+  L.marker([c, lng], {icon:icon}).addTo(map).bindPopup('<b>TILE ÉNERGIE</b><br>ACI 2000, Bamako').openPopup();
+})();
+</script>
+{% endblock %}

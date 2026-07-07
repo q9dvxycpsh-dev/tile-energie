@@ -1,0 +1,112 @@
+{% extends 'app/base_tech.html' %}
+{% load static tile_extras %}
+{% block title %}Mission {{ req.reference }}{% endblock %}
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">
+{% endblock %}
+
+{% block app %}
+<div class="page-head">
+  <div>
+    <a href="{% url 'interventions:tech_dashboard' %}" class="linkline mb-2" style="font-size:.9rem">{% icon 'chevron-right' 'flip' %} Tableau de bord</a>
+    <h1>{{ req.title }}</h1>
+    <p class="sub"><span class="ref">{{ req.reference }}</span> · {{ req.skill.name }}</p>
+  </div>
+  <span class="badge badge--{{ mission.tone }} badge--dot" style="font-size:.9rem;padding:8px 14px">{{ mission.get_status_display }}</span>
+</div>
+
+<div class="cols-12" style="align-items:flex-start;gap:28px">
+  <div class="col-7">
+    <div class="card mb-3">
+      <h3 class="mb-2">Localisation du client</h3>
+      <div id="mission-map" class="map"></div>
+      <p class="hint mt-2 flex gap-1 items-center">{% icon 'map-pin' %} {{ req.address|default:"Position transmise par le client" }}</p>
+      <button type="button" class="btn btn--navy btn--block mt-2" id="share-pos">{% icon 'navigation' %} Partager ma position</button>
+      <p class="hint" id="share-status"></p>
+    </div>
+
+    <div class="card mb-3">
+      <h3 class="mb-2">Détails de la demande</h3>
+      <p>{{ req.description|linebreaksbr }}</p>
+      {% if photos %}<div class="grid grid-3 mt-3" style="gap:12px">{% for p in photos %}<a href="{{ p.image.url }}" target="_blank" class="rounded-img"><img src="{{ p.image.url }}" alt="Photo" style="aspect-ratio:1;object-fit:cover"></a>{% endfor %}</div>{% endif %}
+    </div>
+
+    <div class="card">
+      <h3 class="mb-3">Historique</h3>
+      <div class="track">
+        {% for e in events %}
+        <div class="track__step done"><span class="track__dot" style="background:var(--navy);border-color:var(--navy);color:#fff">{% icon 'check' %}</span>
+          <div><div class="track__label">{{ e.get_status_display }}</div><div class="track__time">{{ e.created_at|date:"d/m H:i" }}{% if e.note %} · {{ e.note }}{% endif %}</div></div></div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-5">
+    <div class="card mb-3">
+      <h4 class="mb-2">Client</h4>
+      <div class="flex gap-2 items-center">
+        <span class="avatar">{{ req.client.initials }}</span>
+        <div style="flex:1"><strong class="text-navy">{{ req.client.display_name }}</strong>
+          <div class="text-muted" style="font-size:.85rem">{{ req.client.city }}</div></div>
+      </div>
+      {% if req.client.phone %}<a href="tel:{{ req.client.phone }}" class="btn btn--ghost btn--block btn--sm mt-3" style="border-color:var(--line)">{% icon 'phone' %} Appeler le client</a>{% endif %}
+    </div>
+
+    <div class="card card--hard">
+      <div class="flex justify-between items-center mb-3">
+        <span class="text-muted">Montant prévu</span>
+        <strong style="font-family:var(--font-display);font-size:1.3rem;color:var(--orange-600)">{{ mission.final_cost|default:req.estimated_cost|fcfa }}</strong>
+      </div>
+      {% if next_status %}
+      <form method="post" action="{% url 'interventions:mission_advance' pk=mission.pk %}">{% csrf_token %}
+        {% if next_status == 'terminee' %}
+        <div class="field"><label for="final_cost">Montant final (FCFA)</label>
+          <input type="number" name="final_cost" id="final_cost" value="{{ mission.final_cost|default:req.estimated_cost }}" min="0" step="500"></div>
+        {% endif %}
+        <button type="submit" class="btn btn--primary btn--block btn--lg">{% icon 'arrow-right' %} Passer à : {{ next_label }}</button>
+      </form>
+      {% else %}
+      <div class="flex gap-1 items-center text-muted" style="justify-content:center;padding:8px">{% icon 'check-circle' %} Mission terminée</div>
+      {% endif %}
+      {% if mission.status == 'acceptee' %}
+      <form method="post" action="{% url 'interventions:mission_refuse' pk=mission.pk %}" onsubmit="return confirm('Refuser cette mission ?');" class="mt-2">{% csrf_token %}
+        <button type="submit" class="btn btn--ghost btn--block" style="border-color:var(--danger);color:var(--danger)">{% icon 'x-circle' %} Refuser la mission</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'vendor/leaflet/leaflet.js' %}"></script>
+<script>
+(function(){
+  var hasLoc = {% if req.lat %}true{% else %}false{% endif %};
+  var cLat = {{ req.lat|default:'null' }}, cLng = {{ req.lng|default:'null' }};
+  var center = hasLoc ? [cLat, cLng] : [{{ MAP_CENTER.lat }}, {{ MAP_CENTER.lng }}];
+  var map = L.map('mission-map').setView(center, 14);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:19, attribution:'&copy; OpenStreetMap'}).addTo(map);
+  setTimeout(function(){ map.invalidateSize(); }, 250);
+  if(hasLoc){
+    var cIcon = L.divIcon({className:'', html:'<div class="cli-marker"></div>', iconSize:[18,18], iconAnchor:[9,16]});
+    L.marker([cLat, cLng], {icon:cIcon}).addTo(map).bindPopup('Client').openPopup();
+  }
+  function getCsrf(){ var t = document.querySelector('[name=csrfmiddlewaretoken]'); return t ? t.value : ''; }
+  document.getElementById('share-pos').addEventListener('click', function(){
+    var st = document.getElementById('share-status');
+    if(!navigator.geolocation){ st.textContent = "Géolocalisation indisponible sur cet appareil."; return; }
+    st.textContent = "Localisation en cours...";
+    navigator.geolocation.getCurrentPosition(function(p){
+      var body = new URLSearchParams({lat:p.coords.latitude, lng:p.coords.longitude, csrfmiddlewaretoken:getCsrf()});
+      fetch("{% url 'interventions:tech_position_update' %}", {method:'POST', headers:{'X-Requested-With':'XMLHttpRequest'}, body:body})
+        .then(function(r){return r.json();}).then(function(d){
+          st.innerHTML = d.ok ? '<svg class="icon" aria-hidden="true"><use href="#i-check-circle"></use></svg> Position partagée avec le client.' : "Échec de l'envoi.";
+          st.style.color = d.ok ? 'var(--success)' : 'var(--danger)';
+        });
+    }, function(){ st.textContent = "Position refusée."; });
+  });
+})();
+</script>
+{% endblock %}

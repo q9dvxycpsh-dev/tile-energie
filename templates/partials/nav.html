@@ -1,0 +1,69 @@
+{% load static tile_extras %}
+<header class="nav">
+  <div class="container nav__inner">
+    <a href="{% url 'website:home' %}" class="brand" aria-label="Accueil TILE ÉNERGIE">
+      <img src="{% static 'img/logo tile.jpg' %}" alt="" class="brand__logo">
+      <span>
+        <span class="brand__name"><b>TILE</b> ÉNERGIE</span>
+        <span class="brand__sub">Ingénierie du dépannage</span>
+      </span>
+    </a>
+
+    <nav class="nav__links" aria-label="Navigation principale">
+      <a href="{% url 'website:home' %}" class="nav__link">Accueil</a>
+      <a href="{% url 'website:apropos' %}" class="nav__link">Le service</a>
+      <a href="{% url 'website:calculateur' %}" class="nav__link">Calculateur</a>
+      <a href="{% url 'website:faq' %}" class="nav__link">FAQ</a>
+      <a href="{% url 'website:contact' %}" class="nav__link">Contact</a>
+    </nav>
+
+    <div class="nav__right">
+      {% if user.is_authenticated %}
+        <a href="{% url dashboard_url %}" class="notif-bell" aria-label="Notifications" title="Notifications">
+          {% icon 'bell' %}
+          {% if nav_notif_unread %}<span class="notif-bell__count">{{ nav_notif_unread }}</span>{% endif %}
+        </a>
+        <a href="{% url dashboard_url %}" class="nav-avatar">
+          <span class="avatar {% if user.is_technicien %}avatar--orange{% endif %}">
+            {% if user.avatar %}<img src="{{ user.avatar.url }}" alt="">{% else %}{{ user.initials }}{% endif %}
+          </span>
+          <span class="name" style="line-height:1.1">
+            <strong style="font-family:var(--font-display);font-size:.9rem;color:var(--navy)">{{ user.display_name }}</strong><br>
+            <span style="font-size:.72rem;color:var(--muted)">{{ role_label }}</span>
+          </span>
+        </a>
+      {% else %}
+        <a href="{% url 'accounts:login' %}" class="nav__link">Connexion</a>
+        <a href="{% url 'interventions:request_create' %}" class="btn btn--primary btn--sm">
+          {% icon 'bolt' %} Demander un dépannage
+        </a>
+      {% endif %}
+      <button class="nav__burger" id="burger" aria-label="Ouvrir le menu">{% icon 'menu' %}</button>
+    </div>
+  </div>
+</header>
+
+<!-- Mobile drawer -->
+<div class="drawer" id="drawer">
+  <div class="drawer__scrim" data-drawer-close></div>
+  <div class="drawer__panel">
+    <button class="drawer__close" data-drawer-close aria-label="Fermer le menu">{% icon 'close' %}</button>
+    <a href="{% url 'website:home' %}" class="drawer__link" data-drawer-close>Accueil</a>
+    <a href="{% url 'website:apropos' %}" class="drawer__link" data-drawer-close>Le service</a>
+    <a href="{% url 'website:calculateur' %}" class="drawer__link" data-drawer-close>Calculateur de dimensionnement</a>
+    <a href="{% url 'website:faq' %}" class="drawer__link" data-drawer-close>Questions fréquentes</a>
+    <a href="{% url 'website:contact' %}" class="drawer__link" data-drawer-close>Contact</a>
+    <div class="divider"></div>
+    {% if user.is_authenticated %}
+      <a href="{% url dashboard_url %}" class="drawer__link" data-drawer-close>{{ role_label }}</a>
+      <a href="{% url 'accounts:profile' %}" class="drawer__link" data-drawer-close>Mon profil</a>
+      <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}
+        <button class="btn btn--ghost btn--block" type="submit" style="margin-top:8px">{% icon 'logout' %} Se déconnecter</button>
+      </form>
+    {% else %}
+      <a href="{% url 'accounts:login' %}" class="drawer__link" data-drawer-close>Connexion</a>
+      <a href="{% url 'accounts:register' %}" class="btn btn--navy btn--block" data-drawer-close style="margin-top:8px">Créer un compte</a>
+      <a href="{% url 'interventions:request_create' %}" class="btn btn--primary btn--block" data-drawer-close style="margin-top:10px">{% icon 'bolt' %} Demander un dépannage</a>
+    {% endif %}
+  </div>
+</div>

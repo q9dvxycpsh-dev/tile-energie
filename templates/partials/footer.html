@@ -1,0 +1,68 @@
+{% load static tile_extras %}
+<footer class="footer">
+  <div class="container">
+    <div class="footer__top">
+      <div class="footer__brand">
+        <div class="brand" style="margin-bottom:18px">
+          <img src="{% static 'img/logo tile.jpg' %}" alt="" class="brand__logo">
+          <span><span class="brand__name"><b style="color:var(--orange)">TILE</b> ÉNERGIE</span>
+          <span class="brand__sub" style="color:#7e8cab">Ingénierie du dépannage</span></span>
+        </div>
+        <p style="max-width:34ch">La plateforme qui connecte particuliers, commerces et entreprises à des techniciens solaires qualifiés, partout au Mali.</p>
+        <div class="footer__social">
+          <a href="https://wa.me/22382011407?text=Bonjour%20TILE%20%C3%89NERGIE%2C%20j%27ai%20besoin%20d%27un%20d%C3%A9pannage%20solaire" target="_blank" rel="noopener" aria-label="WhatsApp">{% icon 'whatsapp' %}</a>
+          <a href="https://www.facebook.com/tileenergie" target="_blank" rel="noopener" aria-label="Facebook">{% icon 'facebook' %}</a>
+          <a href="https://www.instagram.com/tileenergie" target="_blank" rel="noopener" aria-label="Instagram">{% icon 'instagram' %}</a>
+          <a href="https://www.linkedin.com/company/tileenergie" target="_blank" rel="noopener" aria-label="LinkedIn">{% icon 'linkedin' %}</a>
+        </div>
+      </div>
+
+      <div>
+        <h4>Plateforme</h4>
+        <div class="footer__links">
+          <a href="{% url 'website:apropos' %}">Le service</a>
+          <a href="{% url 'website:calculateur' %}">Calculateur</a>
+          <a href="{% url 'interventions:request_create' %}">Demander un dépannage</a>
+          <a href="{% url 'accounts:register' %}">Devenir technicien</a>
+        </div>
+      </div>
+
+      <div>
+        <h4>Ressources</h4>
+        <div class="footer__links">
+          <a href="{% url 'website:faq' %}">Questions fréquentes</a>
+          <a href="{% url 'website:contact' %}">Nous contacter</a>
+          {% if user.is_authenticated %}
+          <form method="post" action="{% url 'accounts:logout' %}" style="display:inline;">{% csrf_token %}<button type="submit" style="background:none;border:none;padding:0;color:inherit;font:inherit;cursor:pointer;">Déconnexion</button></form>
+          {% else %}
+          <a href="{% url 'accounts:login' %}">Connexion</a>
+          {% endif %}
+          <a href="{% url 'website:apropos' %}#impact">Impact</a>
+        </div>
+      </div>
+
+      <div>
+        <h4>Contact</h4>
+        <div class="footer__links">
+          <a href="tel:+22382011407" class="flex items-center gap-1">{% icon 'phone' %} +223 82 01 14 07</a>
+          <a href="mailto:contact@tileenergie.com" class="flex items-center gap-1">{% icon 'mail' %} contact@tileenergie.com</a>
+          <a href="https://www.google.com/maps/search/?api=1&query=ACI+2000+Bamako+Mali" target="_blank" rel="noopener" class="flex items-center gap-1">{% icon 'map-pin' %} ACI 2000, Bamako, Mali</a>
+          <a href="{% url 'website:contact' %}" class="flex items-center gap-1">{% icon 'clock' %} 7j/7, de 7h à 21h</a>
+        </div>
+      </div>
+    </div>
+
+<div style="margin:32px 0 8px;text-align:center;">
+      <h4 style="margin-bottom:16px;">Nos partenaires</h4>
+      <div style="display:flex;align-items:center;justify-content:center;gap:28px;flex-wrap:wrap;">
+        <img src="{% static 'img/partenaire-kamanda.png' %}" alt="Kamanda Care – La nature prend soin de vous" style="height:72px;width:auto;background:#fff;border-radius:12px;padding:10px;">
+        <img src="{% static 'img/partenaire-citroneem.png' %}" alt="Citroneem – Votre allié naturel" style="height:72px;width:auto;background:#fff;border-radius:12px;padding:10px;">
+      </div>
+    </div>
+
+    <div class="footer__bottom">
+      <span>© {% now "Y" %} TILE ÉNERGIE. Tous droits réservés.</span>
+      <span>Énergie solaire · Installation · Maintenance · Dépannage</span>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,106 @@
+{% extends 'app/base_tech.html' %}
+{% load tile_extras %}
+{% block title %}Mes documents · Espace technicien{% endblock %}
+
+{% block app %}
+<div class="page-head">
+  <div>
+    <h1>Mes documents</h1>
+    <p class="sub">Déposez vos justificatifs pour que l'administration puisse valider votre profil.</p>
+  </div>
+</div>
+
+<div class="cols-12">
+  <div class="col-5">
+    <div class="card card--hard">
+      <h3 style="margin-bottom:1.25rem">Déposer un document</h3>
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          <ul class="errlist">
+            {% for e in form.non_field_errors %}
+              <li>{% icon 'alert' %} {{ e }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+        <div class="field">
+          <label for="{{ form.kind.id_for_label }}">Type de document</label>
+          {{ form.kind }}
+          {% if form.kind.errors %}
+            <ul class="errlist">
+              {% for e in form.kind.errors %}
+                <li>{% icon 'alert' %} {{ e }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+        <div class="field">
+          <label for="{{ form.file.id_for_label }}">Fichier</label>
+          {{ form.file }}
+          {% if form.file.errors %}
+            <ul class="errlist">
+              {% for e in form.file.errors %}
+                <li>{% icon 'alert' %} {{ e }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+        <button type="submit" class="btn btn--primary btn--block mt-3">{% icon 'upload' %} Déposer le document</button>
+      </form>
+      <div class="divider" style="margin-top:1.25rem;margin-bottom:1rem"></div>
+      <p class="text-muted" style="font-size:.875rem;display:flex;gap:.5rem;align-items:flex-start">{% icon 'info' %}<span>Vos documents sont examinés par l'administration avant validation de votre profil.</span></p>
+    </div>
+  </div>
+
+  <div class="col-7">
+    <div class="card">
+      <h3 style="margin-bottom:1.25rem">Documents soumis</h3>
+      {% if documents %}
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Statut</th>
+                <th>Déposé le</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for doc in documents %}
+              <tr>
+                <td>
+                  <div class="flex items-center gap-1">
+                    <span class="icon-badge icon-badge--sm">{% icon 'file' %}</span>
+                    <span>{{ doc.get_kind_display }}</span>
+                  </div>
+                </td>
+                <td>
+                  {% if doc.status == 'validated' %}
+                    <span class="badge badge--success badge--dot">{{ doc.get_status_display }}</span>
+                  {% elif doc.status == 'rejected' %}
+                    <span class="badge badge--danger badge--dot">{{ doc.get_status_display }}</span>
+                  {% else %}
+                    <span class="badge badge--info badge--dot">{{ doc.get_status_display }}</span>
+                  {% endif %}
+                </td>
+                <td class="text-muted nowrap">{{ doc.uploaded_at|date:"d/m/Y" }}</td>
+                <td>
+                  <a href="{{ doc.file.url }}" target="_blank" rel="noopener" class="btn btn--ghost btn--sm">{% icon 'eye' %} Voir</a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="empty-state">
+          <span class="icon-badge">{% icon 'file' %}</span>
+          <h3>Aucun document pour l'instant</h3>
+          <p>Déposez votre premier document en utilisant le formulaire ci-contre.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

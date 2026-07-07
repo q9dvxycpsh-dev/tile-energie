@@ -1,0 +1,129 @@
+{% extends 'app/base_client.html' %}
+{% load tile_extras %}
+{% block title %}Mes demandes · Espace client{% endblock %}
+
+{% block app %}
+<div class="page-head">
+  <div>
+    <h1>Mes demandes</h1>
+    <p class="sub">Retrouvez l'ensemble de vos demandes d'intervention, passées et en cours.</p>
+  </div>
+  <a href="{% url 'interventions:request_create' %}" class="btn btn--primary">{% icon 'plus' %} Nouvelle demande</a>
+</div>
+
+{% if requests %}
+<div class="card card--hard">
+  <div class="filters mb-3">
+    <a class="filter is-active" data-filter="all" href="#">Toutes</a>
+    <a class="filter" data-filter="pending" href="#">En attente</a>
+    <a class="filter" data-filter="assigned" href="#">Assignées</a>
+    <a class="filter" data-filter="in_progress" href="#">En cours</a>
+    <a class="filter" data-filter="done" href="#">Terminées</a>
+    <a class="filter" data-filter="cancelled" href="#">Annulées</a>
+  </div>
+
+  <div class="table-wrap">
+    <table class="table" id="history-table">
+      <thead>
+        <tr>
+          <th>Référence</th>
+          <th>Service</th>
+          <th>Statut</th>
+          <th>Technicien</th>
+          <th class="nowrap">Date</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for req in requests %}
+        <tr data-status="{{ req.status }}">
+          <td class="ref nowrap">{{ req.reference }}</td>
+          <td>
+            <span class="text-navy">{{ req.skill.name }}</span>
+            <div class="text-muted" style="font-size:.85rem">{{ req.title|truncatechars:40 }}</div>
+          </td>
+          <td>
+            <span class="badge badge--{{ req.tone }} badge--dot">{{ req.get_status_display }}</span>
+          </td>
+          <td class="text-muted">
+            {% if req.mission %}
+              {{ req.mission.technician.user.display_name }}
+            {% else %}
+              <span style="color:var(--muted-2)">Non assigné</span>
+            {% endif %}
+          </td>
+          <td class="text-muted nowrap">{{ req.created_at|date:"d/m/Y" }}</td>
+          <td>
+            <a href="{% url 'interventions:request_detail' pk=req.pk %}" class="btn btn--ghost btn--sm">Détail</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="empty-state" id="empty-filter" style="display:none">
+    <span class="icon-badge">{% icon 'search' %}</span>
+    <h3>Aucune demande dans ce statut</h3>
+    <p>Essayez un autre filtre ou créez une nouvelle demande.</p>
+  </div>
+</div>
+
+{% else %}
+<div class="card">
+  <div class="empty-state">
+    <span class="icon-badge">{% icon 'list' %}</span>
+    <h3>Aucune demande pour l'instant</h3>
+    <p>Vous n'avez pas encore soumis de demande d'intervention. Lancez-vous en moins d'une minute.</p>
+    <a href="{% url 'interventions:request_create' %}" class="btn btn--primary mt-3">{% icon 'plus' %} Créer une demande</a>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  var filters = document.querySelectorAll('.filters .filter');
+  var rows = document.querySelectorAll('#history-table tbody tr');
+  var emptyMsg = document.getElementById('empty-filter');
+
+  // Chaque catégorie de filtre regroupe un ou plusieurs statuts réels (français).
+  var MAP = {
+    pending: ['soumise', 'en_attente'],
+    assigned: ['acceptee'],
+    in_progress: ['en_route', 'sur_site'],
+    done: ['terminee'],
+    cancelled: ['annulee', 'litige']
+  };
+
+  if (!filters.length) return;
+
+  filters.forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      var target = this.dataset.filter;
+      var allowed = MAP[target];
+
+      filters.forEach(function (f) { f.classList.remove('is-active'); });
+      this.classList.add('is-active');
+
+      var visible = 0;
+      rows.forEach(function (row) {
+        if (target === 'all' || (allowed && allowed.indexOf(row.dataset.status) !== -1)) {
+          row.style.display = '';
+          visible++;
+        } else {
+          row.style.display = 'none';
+        }
+      });
+
+      if (emptyMsg) {
+        emptyMsg.style.display = visible === 0 ? '' : 'none';
+      }
+    });
+  });
+})();
+</script>
+{% endblock %}

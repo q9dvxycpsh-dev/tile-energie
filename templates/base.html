@@ -1,0 +1,53 @@
+{% load static tile_extras %}<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ SITE_NAME }} · {{ SITE_BASELINE }}{% endblock %}</title>
+  <meta name="description" content="{% block description %}TILE ÉNERGIE met en relation particuliers et entreprises avec des techniciens solaires qualifiés, près de chez vous, pour l'installation et le dépannage de vos systèmes solaires.{% endblock %}">
+  <meta name="theme-color" content="#03234E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%2303234E'/%3E%3Cg fill='none' stroke='%23F77818' stroke-width='1.8' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='4'/%3E%3Cpath d='M12 3.5v2M12 18.5v2M4.5 12h-1M20.5 12h-1M6.3 6.3l-.8-.8M18.5 18.5l-.8-.8M6.3 17.7l-.8.8M18.5 5.5l-.8.8'/%3E%3C/g%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/tile.css' %}">
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+  {% include 'partials/icons.html' %}
+  {% include 'partials/nav.html' %}
+
+  {% if messages %}
+    <div class="flash-wrap">
+      {% for m in messages %}
+        <div class="flash {{ m.tags }}">
+          {% if 'success' in m.tags %}{% icon 'check-circle' %}
+          {% elif 'error' in m.tags or 'warning' in m.tags %}{% icon 'alert' %}
+          {% else %}{% icon 'info' %}{% endif %}
+          <div>{{ m }}</div>
+          <button class="flash__close" aria-label="Fermer">{% icon 'x' %}</button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <main id="content">
+    {% block content %}{% endblock %}
+  </main>
+
+  {% block footer %}{% include 'partials/footer.html' %}{% endblock %}
+  {% block chatbot %}{% include 'partials/chatbot.html' %}{% endblock %}
+
+  <!-- Bouton retour en haut -->
+<button id="backToTop" aria-label="Retour en haut" class="back-to-top">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 19V5"/>
+    <path d="M5 12l7-7 7 7"/>
+  </svg>
+</button>
+
+  <script src="{% static 'js/tile.js' %}" defer></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

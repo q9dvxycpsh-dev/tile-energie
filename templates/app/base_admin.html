@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load tile_extras %}
+{% block footer %}{% endblock %}
+{% block chatbot %}{% endblock %}
+{% block content %}
+<div class="app">
+  <aside class="side">
+    <div class="side__title">Administration</div>
+    <a href="{% url 'interventions:admin_dashboard' %}" class="side__link">{% icon 'grid' %} Tableau de bord</a>
+    <a href="{% url 'interventions:admin_map' %}" class="side__link">{% icon 'map-pin' %} Carte temps réel</a>
+    <a href="{% url 'interventions:admin_requests' %}" class="side__link">{% icon 'list' %} Demandes</a>
+    <a href="{% url 'interventions:admin_technicians' %}" class="side__link">{% icon 'hardhat' %} Techniciens</a>
+    <a href="{% url 'interventions:admin_payments' %}" class="side__link">{% icon 'coins' %} Paiements</a>
+    <a href="{% url 'interventions:admin_disputes' %}" class="side__link">{% icon 'alert' %} Litiges</a>
+    <a href="{% url 'interventions:admin_users' %}" class="side__link">{% icon 'users' %} Utilisateurs</a>
+    <div class="side__title">Système</div>
+    <a href="/admin/" class="side__link">{% icon 'settings' %} Django admin</a>
+  </aside>
+  <div class="main">{% block app %}{% endblock %}</div>
+</div>
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load static tile_extras %}
+{% block title %}Le service · {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<!-- PAGE HERO -->
+<section class="section section--navy">
+  <div class="container cols-12">
+    <div class="col-7" data-reveal>
+      <span class="eyebrow eyebrow--onnavy">{% icon 'info' %} Le projet</span>
+      <h1>La maintenance solaire, enfin simple et fiable.</h1>
+      <p class="lead" style="color:#cdd9ef">TILE ÉNERGIE digitalise la mise en relation entre clients et techniciens du solaire. Notre objectif est clair : réduire les délais, garantir la qualité et créer de l'emploi pour les jeunes techniciens.</p>
+      <div class="hero__cta">
+        <a href="{% url 'interventions:request_create' %}" class="btn btn--primary btn--lg">{% icon 'bolt' %} Demander un dépannage</a>
+        <a href="{% url 'website:contact' %}" class="btn btn--outline-light btn--lg">Nous contacter</a>
+      </div>
+    </div>
+    <div class="col-5" data-reveal data-delay="2">
+      <div class="media-frame"><picture><source srcset="{% static 'img/opt/tech-check-md.webp' %}" type="image/webp"><img src="{% static 'img/opt/tech-check-md.jpg' %}" alt="Technicien solaire au travail"></picture></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTEXTE -->
+<section class="section">
+  <div class="container cols-12">
+    <div class="col-6" data-reveal>
+      <span class="eyebrow">{% icon 'target' %} Contexte et justification</span>
+      <h2>Un besoin réel, une réponse moderne.</h2>
+      <p class="lead">L'énergie solaire progresse vite, mais l'accès à des techniciens qualifiés reste lent et incertain. Beaucoup d'utilisateurs peinent à trouver un professionnel en cas de panne ou pour une nouvelle installation.</p>
+      <div class="flow mt-3">
+        <div class="flex gap-2 items-center"><span class="icon-badge icon-badge--sm">{% icon 'bolt' %}</span><div><strong class="text-navy">Croissance du solaire</strong><div class="text-muted">De plus en plus d'installations, donc de besoins d'entretien.</div></div></div>
+        <div class="flex gap-2 items-center"><span class="icon-badge icon-badge--sm">{% icon 'users' %}</span><div><strong class="text-navy">Techniciens dispersés</strong><div class="text-muted">Un savoir-faire réel, mais difficile à joindre rapidement.</div></div></div>
+      </div>
+    </div>
+    <div class="col-6" data-reveal data-delay="2">
+      <div class="card card--hard">
+        <span class="eyebrow">{% icon 'spark' %} Notre solution</span>
+        <h3>Une plateforme à la demande, spécialisée solaire.</h3>
+        <p class="text-muted mt-2">Sur le modèle des services à la demande, mais dédiée au solaire : le client trouve un technicien proche, demande une intervention et accède à des professionnels qualifiés en quelques clics.</p>
+        <div class="divider"></div>
+        <div class="grid grid-2" style="gap:14px">
+          <div><div class="stat__num" style="font-size:2rem">3</div><div class="text-muted">profils : client, technicien, admin</div></div>
+          <div><div class="stat__num" style="font-size:2rem">9</div><div class="text-muted">statuts suivis de bout en bout</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OBJECTIFS -->
+<section class="section section--cream">
+  <div class="container">
+    <div class="section-head center"><span class="eyebrow">{% icon 'flag' %} Nos objectifs</span><h2>Ce que la plateforme vise concrètement.</h2></div>
+    <div class="grid grid-3">
+      {% for o in objectifs %}<div class="card card--lift" data-reveal data-delay="{{ forloop.counter }}"><span class="icon-badge icon-badge--sm">{% icon o.icon %}</span><h3 class="mt-2" style="font-size:1.2rem">{{ o.title }}</h3><p class="text-muted">{{ o.text }}</p></div>{% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- DOMAINES -->
+<section class="section">
+  <div class="container">
+    <div class="section-head"><span class="eyebrow">{% icon 'wrench' %} Domaines de compétence</span><h2>Des techniciens formés sur toute la chaîne.</h2></div>
+    <div class="grid grid-3">
+      {% for s in skills %}<div class="card card--lift feature" data-reveal data-delay="{{ forloop.counter }}"><span class="icon-badge">{% icon s.icon %}</span><h3>{{ s.name }}</h3><p class="text-muted">{{ s.description }}</p></div>{% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- FONCTIONNALITÉS -->
+<section class="section section--navy">
+  <div class="container">
+    <div class="section-head center"><span class="eyebrow eyebrow--light">{% icon 'grid' %} Fonctionnalités</span><h2>Pensée pour les clients comme pour les techniciens.</h2></div>
+    <div class="grid grid-2">
+      <div class="card card--navy" data-reveal>
+        <span class="badge badge--accent mb-2">Côté client</span>
+        <ul class="flow">
+          <li class="flex gap-1 items-center">{% icon 'check' %} Rechercher un technicien à proximité</li>
+          <li class="flex gap-1 items-center">{% icon 'check' %} Décrire le problème et joindre des photos</li>
+          <li class="flex gap-1 items-center">{% icon 'check' %} Voir une estimation indicative du coût</li>
+          <li class="flex gap-1 items-center">{% icon 'check' %} Suivre l'arrivée du technicien en temps réel</li>
+          <li class="flex gap-1 items-center">{% icon 'check' %} Payer puis évaluer le service</li>
+        </ul>
+      </div>
+      <div class="card card--navy" data-reveal data-delay="2">
+        <span class="badge badge--success mb-2">Côté technicien</span>
+        <ul class="flow">
+          <li class="flex gap-1 items-center">{% icon 'check' %} Créer un profil professionnel vérifié</li>
+          <li class="flex gap-1 items-center">{% icon 'check' %} Recevoir et gérer ses missions</li>
+          <li class="flex gap-1 items-center">{% icon 'check' %} Mettre à jour le statut de l'intervention</li>
+          <li class="flex gap-1 items-center">{% icon 'check' %} Partager sa position pendant la mission</li>
+          <li class="flex gap-1 items-center">{% icon 'check' %} Suivre ses gains et son historique</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- IMPACT -->
+<section class="section section--cream" id="impact">
+  <div class="container">
+    <div class="section-head"><span class="eyebrow">{% icon 'trending' %} Impact socio-économique</span><h2>Plus qu'un service, un levier de développement.</h2></div>
+    <div class="grid grid-4">
+      <div class="card" data-reveal><span class="icon-badge icon-badge--sm">{% icon 'users' %}</span><h4 class="mt-2">Emploi des jeunes</h4><p class="text-muted">Des revenus réguliers pour les techniciens.</p></div>
+      <div class="card" data-reveal data-delay="1"><span class="icon-badge icon-badge--sm">{% icon 'shield' %}</span><h4 class="mt-2">Secteur structuré</h4><p class="text-muted">Le travail informel devient traçable et fiable.</p></div>
+      <div class="card" data-reveal data-delay="2"><span class="icon-badge icon-badge--sm">{% icon 'spark' %}</span><h4 class="mt-2">Innovation locale</h4><p class="text-muted">La technologie au service du quotidien.</p></div>
+      <div class="card" data-reveal data-delay="3"><span class="icon-badge icon-badge--sm">{% icon 'leaf' %}</span><h4 class="mt-2">Transition énergétique</h4><p class="text-muted">Un appui concret aux énergies propres.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section section--tight">
+  <div class="container"><div class="cta-band" data-reveal><span class="cta-band__deco">{% icon 'sun' %}</span>
+    <div class="cols-12"><div class="col-8"><h2>Prêt à essayer TILE ÉNERGIE ?</h2><p style="color:#3a2406">Demandez un dépannage ou estimez votre future installation en quelques minutes.</p></div>
+    <div class="col-4 flex gap-2 wrap" style="align-items:center"><a href="{% url 'interventions:request_create' %}" class="btn btn--navy btn--lg">{% icon 'bolt' %} Demander</a><a href="{% url 'website:calculateur' %}" class="btn btn--ghost btn--lg" style="border-color:var(--navy)">{% icon 'calculator' %} Calculer</a></div></div>
+  </div></div>
+</section>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends 'app/base_admin.html' %}
+{% load tile_extras %}
+{% block title %}Paiements · Administration{% endblock %}
+
+{% block app %}
+<div class="page-head">
+  <div>
+    <h1>Paiements</h1>
+    <p class="sub">Suivi et confirmation des paiements liés aux interventions.</p>
+  </div>
+</div>
+
+{% if payments %}
+<div class="card card--hard">
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Référence</th>
+          <th>Demande</th>
+          <th>Client</th>
+          <th>Technicien</th>
+          <th>Méthode</th>
+          <th>Montant</th>
+          <th>Statut</th>
+          <th>Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in payments %}
+        <tr>
+          <td class="ref">{{ p.reference }}</td>
+          <td class="ref">{{ p.mission.request.reference }}</td>
+          <td>{{ p.mission.request.client.display_name }}</td>
+          <td>{{ p.mission.technician.user.display_name }}</td>
+          <td class="text-muted nowrap">{{ p.get_method_display }}</td>
+          <td class="nowrap">{{ p.amount|fcfa }}</td>
+          <td><span class="badge badge--{{ p.tone }}">{{ p.get_state_display }}</span></td>
+          <td class="text-muted nowrap">{{ p.created_at|date:"d/m/Y" }}</td>
+          <td>
+            {% if p.state == 'pending' %}
+            <form method="post" action="{% url 'interventions:admin_payment_confirm' pk=p.pk %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn--sm btn--primary">{% icon 'check' %} Confirmer</button>
+            </form>
+            {% else %}
+            <span class="text-muted">·</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="empty-state">
+  <span class="icon-badge">{% icon 'coins' %}</span>
+  <h3>Aucun paiement enregistré</h3>
+  <p>Les paiements apparaîtront ici dès qu'une intervention sera finalisée et facturée.</p>
+</div>
+{% endif %}
+{% endblock %}

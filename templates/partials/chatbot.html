@@ -1,0 +1,19 @@
+{% load tile_extras static %}
+<div class="chatbot" id="chatbot" data-url="{% url 'website:chatbot_api' %}">
+  <div class="chatbox" role="dialog" aria-label="Assistant TILE">
+    <div class="chatbox__head">
+      <span class="avatar"><img src="{% static 'img/tila-avatar.jpg' %}" alt="Tila" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"></span>
+      <div>
+        <div class="t">Tila · Assistant</div>
+        <div class="s"><i></i> En ligne · réponses immédiates</div>
+      </div>
+    </div>
+    <div class="chatbox__body" id="chat-body"></div>
+    <div class="chips" id="chat-chips"></div>
+  </div>
+  <button class="chatbot__toggle" aria-label="Ouvrir l'assistant">
+    <span class="chatbot__ping"></span>
+    <span class="i-chat">{% icon 'chat' %}</span>
+    <span class="i-close">{% icon 'close' %}</span>
+  </button>
+</div>

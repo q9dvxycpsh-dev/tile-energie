@@ -1,0 +1,107 @@
+{% extends 'app/base_admin.html' %}
+{% load tile_extras %}
+{% block title %}Techniciens · Administration{% endblock %}
+
+{% block app %}
+<div class="page-head">
+  <div>
+    <h1>Techniciens</h1>
+    <p class="sub">Gérez les profils, vérifiez les documents et validez les techniciens inscrits.</p>
+  </div>
+  <a href="{% url 'interventions:admin_technicians' %}" class="btn btn--ghost btn--sm">{% icon 'refresh' %} Actualiser</a>
+</div>
+
+<div class="filters mb-3">
+  <a href="{% url 'interventions:admin_technicians' %}" class="filter {% if not f %}is-active{% endif %}">Tous</a>
+  <a href="{% url 'interventions:admin_technicians' %}?f=pending" class="filter {% if f == 'pending' %}is-active{% endif %}">En attente</a>
+  <a href="{% url 'interventions:admin_technicians' %}?f=verified" class="filter {% if f == 'verified' %}is-active{% endif %}">Validés</a>
+  <a href="{% url 'interventions:admin_technicians' %}?f=rejected" class="filter {% if f == 'rejected' %}is-active{% endif %}">Rejetés</a>
+</div>
+
+{% if techs %}
+<div class="grid grid-2">
+  {% for tech in techs %}
+  <div class="card card--lift">
+
+    <div class="flex items-center gap-2 mb-3">
+      <span class="avatar avatar--lg avatar--orange">{{ tech.user.initials }}</span>
+      <div style="flex:1; min-width:0;">
+        <div class="flex items-center gap-2 wrap">
+          <strong class="text-navy" style="font-size:1.05rem;">{{ tech.user.display_name }}</strong>
+          {% if tech.verification == 'verified' %}
+            <span class="badge badge--success badge--dot">{{ tech.get_verification_display }}</span>
+          {% elif tech.verification == 'pending' %}
+            <span class="badge badge--info badge--dot">{{ tech.get_verification_display }}</span>
+          {% elif tech.verification == 'rejected' %}
+            <span class="badge badge--danger badge--dot">{{ tech.get_verification_display }}</span>
+          {% else %}
+            <span class="badge badge--muted badge--dot">{{ tech.get_verification_display }}</span>
+          {% endif %}
+        </div>
+        <div class="text-muted" style="font-size:.85rem; margin-top:2px;">{{ tech.user.email }}</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="flex wrap gap-2 mt-2 mb-2" style="font-size:.875rem; color: var(--muted);">
+      {% if tech.zones %}
+      <span class="flex items-center gap-1">{% icon 'map-pin' %} {{ tech.zones }}</span>
+      {% endif %}
+      <span class="flex items-center gap-1">{% icon 'clock' %} {{ tech.experience_years }} ans</span>
+      <span class="flex items-center gap-1 stars">
+        {% for s in tech.rating_avg|to_stars %}{% if s == 'full' %}{% icon 'star' %}{% else %}{% icon 'star-outline' %}{% endif %}{% endfor %}
+        <span style="color: var(--muted); margin-left:2px;">{{ tech.rating_avg|floatformat:1 }}</span>
+      </span>
+      <span class="flex items-center gap-1">{% icon 'check-circle' %} {{ tech.completed_missions }} missions</span>
+      <span class="flex items-center gap-1">{% icon 'file' %} {{ tech.documents.count }} documents</span>
+    </div>
+
+    {% if tech.skills.all %}
+    <div class="flex wrap gap-1 mt-2 mb-3">
+      {% for sk in tech.skills.all %}
+      <span class="pill">{% icon sk.icon %} {{ sk.name }}</span>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="divider"></div>
+
+    <div class="flex gap-1 wrap mt-3">
+      {% if tech.verification != 'verified' %}
+      <form method="post" action="{% url 'interventions:admin_tech_action' pk=tech.pk %}">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="validate">
+        <button type="submit" class="btn btn--primary btn--sm">{% icon 'check' %} Valider le profil</button>
+      </form>
+      {% endif %}
+      {% if tech.verification != 'rejected' %}
+      <form method="post" action="{% url 'interventions:admin_tech_action' pk=tech.pk %}">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="reject">
+        <button type="submit" class="btn btn--ghost btn--sm">{% icon 'ban' %} Rejeter</button>
+      </form>
+      {% endif %}
+    </div>
+
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<div class="empty-state">
+  <span class="icon-badge">{% icon 'hardhat' %}</span>
+  <h3>Aucun technicien trouvé</h3>
+  <p>
+    {% if f == 'pending' %}Aucun technicien n'est actuellement en attente de validation.
+    {% elif f == 'verified' %}Aucun technicien validé pour le moment.
+    {% elif f == 'rejected' %}Aucun technicien rejeté.
+    {% else %}Aucun technicien enregistré sur la plateforme.{% endif %}
+  </p>
+  {% if f %}
+  <a href="{% url 'interventions:admin_technicians' %}" class="btn btn--ghost mt-3">{% icon 'list' %} Voir tous les techniciens</a>
+  {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}

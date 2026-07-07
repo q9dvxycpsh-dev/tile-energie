@@ -1,0 +1,172 @@
+{% extends 'app/base_client.html' %}
+{% load static tile_extras %}
+{% block title %}Nouvelle demande · Espace client{% endblock %}
+{% block head_extra %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+{% endblock %}
+
+{% block app %}
+<div class="page-head"><div><h1>Demander une intervention</h1><p class="sub">Décrivez votre besoin et indiquez votre position. Un technicien proche vous est affecté.</p></div></div>
+
+<form method="post" enctype="multipart/form-data" novalidate>
+  {% csrf_token %}
+  <div class="cols-12" style="align-items:flex-start; gap:28px">
+    <div class="col-7">
+      <div class="card mb-3">
+        <h3 class="mb-3">Le service</h3>
+        <div class="field {% if form.skill.errors %}field--error{% endif %}">
+          <label for="id_skill">Type de service</label>
+          <select name="skill" id="id_skill" class="select" required>
+            <option value="">Choisir un service</option>
+            {% for s in skills %}
+            <option value="{{ s.pk }}" data-base="{{ estimates|get_item:s.slug|default:15000 }}"
+              {% if form.skill.value|stringformat:'s' == s.pk|stringformat:'s' %}selected{% endif %}>{{ s.name }}</option>
+            {% endfor %}
+          </select>
+          {% for e in form.skill.errors %}<ul class="errlist"><li>{% icon 'alert' %}{{ e }}</li></ul>{% endfor %}
+        </div>
+        <div class="field {% if form.title.errors %}field--error{% endif %}">
+          <label for="{{ form.title.id_for_label }}">Titre court</label>{{ form.title }}
+          {% for e in form.title.errors %}<ul class="errlist"><li>{% icon 'alert' %}{{ e }}</li></ul>{% endfor %}
+        </div>
+        <div class="field {% if form.description.errors %}field--error{% endif %}">
+          <label for="{{ form.description.id_for_label }}">Description du problème</label>{{ form.description }}
+          {% for e in form.description.errors %}<ul class="errlist"><li>{% icon 'alert' %}{{ e }}</li></ul>{% endfor %}
+        </div>
+        <div class="field">
+          <label>Niveau d'urgence</label>
+          <div class="choice-grid choice-grid--4">
+            {% for val, label in form.fields.urgency.choices %}
+            <label class="choice"><input type="radio" name="urgency" value="{{ val }}" data-urg
+              {% if form.urgency.value == val or not form.urgency.value and val == 'normale' %}checked{% endif %}>
+              <span class="choice__box" style="display:block;text-align:center;padding:12px"><strong class="text-navy">{{ label }}</strong></span></label>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <h3 class="mb-2">Photos (optionnel)</h3>
+        <p class="text-muted mb-2" style="font-size:.9rem">Une photo aide le technicien à préparer son intervention.</p>
+        <label class="filepicker" for="photos">{% icon 'camera' %}<div id="photo-label">Cliquez pour ajouter des photos</div></label>
+        <input type="file" id="photos" name="photos" accept="image/*" multiple hidden>
+      </div>
+    </div>
+
+    <div class="col-5">
+        <div class="card mb-3">
+          <h3 class="mb-2">Votre position</h3>
+          <div class="field {% if form.non_field_errors %}field--error{% endif %}">
+            <label for="{{ form.address.id_for_label }}">Adresse / point de repère</label>{{ form.address }}
+          </div>
+          <button type="button" class="btn btn--ghost btn--sm btn--block mb-2" id="geo-btn" style="border-color:var(--line)">{% icon 'navigation' %} Utiliser ma position actuelle</button>
+          <div id="pick-map" class="map map--sm" role="application" aria-label="Carte pour choisir votre position" style="height:320px;width:100%;border-radius:14px;"></div>
+          <p class="hint mt-2" id="pick-hint">{% icon 'map-pin' %} Touchez la carte pour placer votre position.</p>
+          {{ form.lat }}{{ form.lng }}
+          {% for e in form.non_field_errors %}<ul class="errlist"><li>{% icon 'alert' %}{{ e }}</li></ul>{% endfor %}
+        </div>
+
+        <div class="card card--hard">
+          <span class="eyebrow">{% icon 'coins' %} Estimation indicative</span>
+          <div class="stat__num" id="estimate" style="color:var(--navy)">·</div>
+          <p class="hint">Fourchette de départ selon le service et l'urgence. Le montant final est confirmé par le technicien.</p>
+          <button type="submit" class="btn btn--primary btn--block btn--lg mt-2">{% icon 'bolt' %} Envoyer la demande</button>
+        </div>
+      </div>
+    </div>
+  </form>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+  /* ========== CARTE ========== */
+  var mapDiv = document.getElementById('pick-map');
+  if (mapDiv && window.L) {
+    var map = L.map('pick-map').setView([12.6392, -8.0029], 13); // Bamako
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19, attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
+    setTimeout(function(){ map.invalidateSize(); }, 300);
+
+    var marker = null;
+    var fLat = document.getElementById('id_lat');
+    var fLng = document.getElementById('id_lng');
+    var hint = document.getElementById('pick-hint');
+
+    function place(la, ln) {
+      if (marker) { marker.setLatLng([la, ln]); }
+      else { marker = L.marker([la, ln]).addTo(map); }
+      if (fLat) fLat.value = la.toFixed(6);
+      if (fLng) fLng.value = ln.toFixed(6);
+      if (hint) { hint.textContent = '✓ Position enregistrée.'; hint.style.color = 'var(--success)'; }
+    }
+
+    // Position déjà saisie ? On la réaffiche
+    if (fLat && fLng && fLat.value && fLng.value) {
+      place(parseFloat(fLat.value), parseFloat(fLng.value));
+      map.setView([parseFloat(fLat.value), parseFloat(fLng.value)], 15);
+    }
+
+    // Clic sur la carte
+    map.on('click', function (e) { place(e.latlng.lat, e.latlng.lng); });
+
+    // Bouton géolocalisation
+    var geoBtn = document.getElementById('geo-btn');
+    if (geoBtn) {
+      geoBtn.addEventListener('click', function () {
+        if (!navigator.geolocation) { alert('Géolocalisation non disponible.'); return; }
+        navigator.geolocation.getCurrentPosition(function (p) {
+          place(p.coords.latitude, p.coords.longitude);
+          map.setView([p.coords.latitude, p.coords.longitude], 15);
+        }, function () {
+          alert("Position introuvable. Touchez la carte pour la placer manuellement.");
+        });
+      });
+    }
+  }
+
+  /* ========== ESTIMATION ========== */
+  var FACT = { faible: 0.9, normale: 1, haute: 1.2, urgente: 1.5 };
+  function estimate() {
+    var sel = document.getElementById('id_skill');
+    var el = document.getElementById('estimate');
+    if (!sel || !el) return;
+    var opt = sel.options[sel.selectedIndex];
+    var base = opt ? parseFloat(opt.dataset.base) : NaN;
+    var urg = document.querySelector('[data-urg]:checked');
+    var f = urg ? (FACT[urg.value] || 1) : 1;
+    if (!base || isNaN(base)) { el.textContent = '·'; return; }
+    var est = Math.round(base * f / 500) * 500;
+    el.textContent = est.toLocaleString('fr-FR') + ' FCFA';
+  }
+  var skillSel = document.getElementById('id_skill');
+  if (skillSel) skillSel.addEventListener('change', estimate);
+  document.querySelectorAll('[data-urg]').forEach(function (r) { r.addEventListener('change', estimate); });
+  estimate();
+
+  /* ========== PHOTOS : compteur + aperçu ========== */
+  var photos = document.getElementById('photos');
+  if (photos) {
+    var preview = document.createElement('div');
+    preview.style.cssText = 'display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;';
+    photos.parentNode.appendChild(preview);
+
+    photos.addEventListener('change', function () {
+      var n = photos.files.length;
+      var label = document.getElementById('photo-label');
+      if (label) label.textContent = n ? (n + ' photo(s) sélectionnée(s)') : 'Cliquez pour ajouter des photos';
+      preview.innerHTML = '';
+      Array.from(photos.files).forEach(function (file) {
+        if (!file.type.startsWith('image/')) return;
+        var img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+       img.style.cssText = 'width:180px;height:180px;object-fit:cover;border-radius:12px;border:1px solid #ddd;box-shadow:0 2px 8px rgba(0,0,0,.08);';
+        preview.appendChild(img);
+      });
+    });
+  }
+
+});
+</script>
+{% endblock %}

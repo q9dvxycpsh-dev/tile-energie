@@ -1,0 +1,194 @@
+{% extends 'app/base_admin.html' %}
+{% load tile_extras %}
+{% block title %}Tableau de bord · Administration{% endblock %}
+
+{% block app %}
+<div class="page-head">
+  <div>
+    <h1>Tableau de bord</h1>
+    <p class="sub">Vue d'ensemble de la plateforme TILE ÉNERGIE.</p>
+  </div>
+  <a href="{% url 'interventions:admin_map' %}" class="btn btn--navy">{% icon 'map-pin' %} Carte temps réel</a>
+</div>
+
+<div class="kpi-grid mb-3">
+  <div class="kpi">
+    <div class="kpi__top">
+      <span class="kpi__label">Clients</span>
+      <span class="icon-badge icon-badge--sm">{% icon 'users' %}</span>
+    </div>
+    <div class="kpi__num">{{ kpi_clients }}</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi__top">
+      <span class="kpi__label">Techniciens</span>
+      <span class="icon-badge icon-badge--sm">{% icon 'hardhat' %}</span>
+    </div>
+    <div class="kpi__num">{{ kpi_techs }}</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi__top">
+      <span class="kpi__label">Demandes</span>
+      <span class="icon-badge icon-badge--sm">{% icon 'list' %}</span>
+    </div>
+    <div class="kpi__num">{{ kpi_requests }}</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi__top">
+      <span class="kpi__label">Interventions actives</span>
+      <span class="icon-badge icon-badge--sm">{% icon 'route' %}</span>
+    </div>
+    <div class="kpi__num">{{ kpi_active }}</div>
+  </div>
+</div>
+
+<div class="kpi-grid kpi-grid--3 mb-4">
+  <div class="kpi">
+    <div class="kpi__top">
+      <span class="kpi__label">Revenus totaux</span>
+      <span class="icon-badge icon-badge--sm">{% icon 'coins' %}</span>
+    </div>
+    <div class="kpi__num" style="font-size: 1.4rem">{{ kpi_revenue|fcfa }}</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi__top">
+      <span class="kpi__label">Techniciens à valider</span>
+      <span class="icon-badge icon-badge--sm">{% icon 'doc-check' %}</span>
+    </div>
+    <div class="kpi__num">{{ kpi_pending_tech }}</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi__top">
+      <span class="kpi__label">Litiges ouverts</span>
+      <span class="icon-badge icon-badge--sm">{% icon 'alert' %}</span>
+    </div>
+    <div class="kpi__num">{{ kpi_disputes }}</div>
+  </div>
+</div>
+
+<div class="cols-12 mb-4" style="align-items: start">
+  <div class="col-7">
+    <div class="card">
+      <div class="help-row mb-3">
+        <h3 style="margin: 0">Demandes récentes</h3>
+        <a href="{% url 'interventions:admin_requests' %}" class="linkline">Toutes les demandes {% icon 'arrow-right' %}</a>
+      </div>
+      {% if recent_requests %}
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Référence</th>
+              <th>Client</th>
+              <th>Service</th>
+              <th>Statut</th>
+              <th>Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for req in recent_requests %}
+            <tr>
+              <td class="ref">{{ req.reference }}</td>
+              <td>{{ req.client.display_name }}</td>
+              <td>{{ req.skill.name }}</td>
+              <td><span class="badge badge--{{ req.tone }}">{{ req.get_status_display }}</span></td>
+              <td class="text-muted nowrap">{{ req.created_at|date:"d/m/Y" }}</td>
+              <td>
+                {% if req.mission %}
+                  <span class="text-muted" style="font-size: .88rem">{{ req.mission.technician.user.display_name }}</span>
+                {% else %}
+                  <form method="post" action="{% url 'interventions:admin_assign' pk=req.pk %}" style="display: inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn--primary btn--sm">Affecter</button>
+                  </form>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <span class="icon-badge">{% icon 'list' %}</span>
+        <h3>Aucune demande récente</h3>
+        <p>Les nouvelles demandes apparaîtront ici dès leur création.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="col-5">
+    <div class="card">
+      <div class="help-row mb-3">
+        <h3 style="margin: 0">Techniciens à valider</h3>
+        <a href="{% url 'interventions:admin_technicians' %}" class="linkline">Voir tout {% icon 'arrow-right' %}</a>
+      </div>
+      {% if pending_techs %}
+      <div class="flow">
+        {% for tech in pending_techs %}
+        <div style="padding: 14px 0; border-bottom: 1px solid var(--line-soft)">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="avatar avatar--orange">{{ tech.user.initials }}</span>
+            <div style="flex: 1">
+              <strong class="text-navy">{{ tech.user.display_name }}</strong>
+              <div class="text-muted" style="font-size: .85rem">
+                {{ tech.zones }} · {{ tech.experience_years }} an{% if tech.experience_years > 1 %}s{% endif %} d'expérience
+              </div>
+            </div>
+          </div>
+          <div class="flex gap-1 wrap">
+            <form method="post" action="{% url 'interventions:admin_tech_action' pk=tech.pk %}" style="display: inline">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="validate">
+              <button type="submit" class="btn btn--primary btn--sm">Valider</button>
+            </form>
+            <form method="post" action="{% url 'interventions:admin_tech_action' pk=tech.pk %}" style="display: inline">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="reject">
+              <button type="submit" class="btn btn--ghost btn--sm">Rejeter</button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <span class="icon-badge">{% icon 'check-circle' %}</span>
+        <h3>Aucune validation en attente</h3>
+        <p>Tous les dossiers techniciens sont traités.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="help-row mb-3">
+    <h3 style="margin: 0">Journal d'activité</h3>
+  </div>
+  {% if logs %}
+  <ul class="notif-list">
+    {% for entry in logs %}
+    <li class="notif-item">
+      <span class="icon-badge icon-badge--sm icon-badge--cream">{% icon 'flag' %}</span>
+      <div>
+        <div class="t">
+          <strong>{% if entry.actor %}{{ entry.actor.display_name }}{% else %}Système{% endif %}</strong>
+          {{ entry.verb }}{% if entry.target %} : {{ entry.target }}{% endif %}
+        </div>
+        <div class="time text-muted">{{ entry.created_at|date:"d/m/Y H:i" }}</div>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <div class="empty-state">
+    <span class="icon-badge">{% icon 'file' %}</span>
+    <h3>Aucune activité enregistrée</h3>
+    <p>Les actions sur la plateforme apparaîtront ici.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

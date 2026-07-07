@@ -1,0 +1,93 @@
+{% extends 'app/base_admin.html' %}
+{% load tile_extras %}
+{% block title %}Utilisateurs · Administration{% endblock %}
+
+{% block app %}
+<div class="page-head">
+  <div>
+    <h1>Utilisateurs</h1>
+    <p class="sub">Consultez et gérez les comptes inscrits sur la plateforme.</p>
+  </div>
+</div>
+
+<div class="filters mb-3">
+  <a href="{% url 'interventions:admin_users' %}" class="filter {% if not role %}is-active{% endif %}">Tous</a>
+  <a href="{% url 'interventions:admin_users' %}?role=client" class="filter {% if role == 'client' %}is-active{% endif %}">Clients</a>
+  <a href="{% url 'interventions:admin_users' %}?role=technicien" class="filter {% if role == 'technicien' %}is-active{% endif %}">Techniciens</a>
+  <a href="{% url 'interventions:admin_users' %}?role=admin" class="filter {% if role == 'admin' %}is-active{% endif %}">Admins</a>
+</div>
+
+{% if users %}
+<div class="card card--hard">
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Email</th>
+          <th>Rôle</th>
+          <th>Téléphone</th>
+          <th>Inscription</th>
+          <th>Statut</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>
+            <div class="flex items-center gap-2">
+              <span class="avatar">{{ u.initials }}</span>
+              <span class="text-navy">{{ u.display_name }}</span>
+            </div>
+          </td>
+          <td class="text-muted nowrap">{{ u.email }}</td>
+          <td>
+            {% if u.role == 'client' %}
+              <span class="badge badge--info">{{ u.get_role_display }}</span>
+            {% elif u.role == 'technicien' %}
+              <span class="badge badge--accent">{{ u.get_role_display }}</span>
+            {% elif u.role == 'admin' %}
+              <span class="badge badge--success">{{ u.get_role_display }}</span>
+            {% else %}
+              <span class="badge badge--muted">{{ u.get_role_display }}</span>
+            {% endif %}
+          </td>
+          <td class="text-muted nowrap">{{ u.phone|default:"·" }}</td>
+          <td class="text-muted nowrap">{{ u.date_joined|date:"d/m/Y" }}</td>
+          <td>
+            {% if u.is_suspended %}
+              <span class="badge badge--danger badge--dot">Suspendu</span>
+            {% else %}
+              <span class="badge badge--success badge--dot">Actif</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if u.is_superuser %}
+              <span class="badge badge--muted">Protégé</span>
+            {% else %}
+              <form method="post" action="{% url 'interventions:admin_user_toggle' pk=u.pk %}">
+                {% csrf_token %}
+                {% if u.is_suspended %}
+                  <button type="submit" class="btn btn--ghost btn--sm">{% icon 'check' %} Réactiver</button>
+                {% else %}
+                  <button type="submit" class="btn btn--sm" style="color:var(--danger);border-color:var(--danger)">{% icon 'ban' %} Suspendre</button>
+                {% endif %}
+              </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="empty-state">
+  <span class="icon-badge">{% icon 'users' %}</span>
+  <h3>Aucun utilisateur trouvé</h3>
+  <p>Aucun compte ne correspond aux critères sélectionnés.</p>
+  <a href="{% url 'interventions:admin_users' %}" class="btn btn--primary mt-3">{% icon 'refresh' %} Voir tous les utilisateurs</a>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends 'app/base_admin.html' %}
+{% load static tile_extras %}
+{% block title %}Carte temps réel · Administration{% endblock %}
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">
+{% endblock %}
+
+{% block app %}
+<div class="page-head">
+  <div><h1>Carte des interventions</h1><p class="sub">Position des techniciens et des interventions en cours, actualisée en direct.</p></div>
+  <span class="badge badge--success badge--dot" id="live-badge">En direct · <span id="updated">·</span></span>
+</div>
+
+<div class="kpi-grid kpi-grid--3">
+  <div class="kpi"><div class="kpi__top"><span class="kpi__label">Techniciens en ligne</span><span class="icon-badge icon-badge--sm">{% icon 'hardhat' %}</span></div><div class="kpi__num" id="k-online">0</div></div>
+  <div class="kpi"><div class="kpi__top"><span class="kpi__label">En intervention</span><span class="icon-badge icon-badge--sm">{% icon 'route' %}</span></div><div class="kpi__num" id="k-busy">0</div></div>
+  <div class="kpi"><div class="kpi__top"><span class="kpi__label">Interventions actives</span><span class="icon-badge icon-badge--sm">{% icon 'bolt' %}</span></div><div class="kpi__num" id="k-active">0</div></div>
+</div>
+
+<div class="card">
+  <div id="fleet-map" class="map map--tall"></div>
+  <div class="map-legend">
+    <span><i style="background:var(--success)"></i> Disponible</span>
+    <span><i style="background:var(--orange)"></i> En intervention</span>
+    <span><i style="background:var(--navy)"></i> Demande en cours</span>
+    <span class="text-muted">Actualisation automatique toutes les 4 secondes</span>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'vendor/leaflet/leaflet.js' %}"></script>
+<script>
+(function(){
+  var map = L.map('fleet-map').setView([{{ MAP_CENTER.lat }}, {{ MAP_CENTER.lng }}], {{ MAP_CENTER.zoom }});
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:19, attribution:'&copy; OpenStreetMap'}).addTo(map);
+  setTimeout(function(){ map.invalidateSize(); }, 250);
+  var url = "{% url 'interventions:positions_api' %}";
+  var techMarkers = {}, reqMarkers = {};
+
+  function techIcon(status){
+    var cls = status === 'available' ? '' : (status === 'busy' ? 'busy' : 'offline');
+    return L.divIcon({className:'', html:'<div class="tech-marker '+cls+'" style="width:22px;height:22px"></div>', iconSize:[22,22], iconAnchor:[11,11]});
+  }
+  var reqIcon = L.divIcon({className:'', html:'<div class="cli-marker" style="width:18px;height:18px"></div>', iconSize:[18,18], iconAnchor:[9,16]});
+
+  function refresh(){
+    fetch(url).then(function(r){return r.json();}).then(function(d){
+      var online = 0, busy = 0;
+      var seen = {};
+      d.technicians.forEach(function(t){
+        seen[t.id] = true;
+        if(t.status === 'available') online++;
+        if(t.status === 'busy') busy++;
+        var pos = [t.lat, t.lng];
+        var popup = '<b>'+t.name+'</b><br>'+ (t.mission ? ('Mission '+t.mission+(t.eta!=null?(' · ~'+t.eta+' min'):'')) : 'Disponible') + '<br>Note '+ (t.rating||0).toFixed(1) +'/5';
+        if(techMarkers[t.id]){ techMarkers[t.id].setLatLng(pos).setIcon(techIcon(t.status)).setPopupContent(popup); }
+        else { techMarkers[t.id] = L.marker(pos, {icon:techIcon(t.status)}).addTo(map).bindPopup(popup); }
+      });
+      Object.keys(techMarkers).forEach(function(id){ if(!seen[id]){ map.removeLayer(techMarkers[id]); delete techMarkers[id]; } });
+
+      var seenR = {};
+      d.interventions.forEach(function(r){
+        seenR[r.ref] = true;
+        var pos = [r.lat, r.lng];
+        var popup = '<b>'+r.ref+'</b><br>'+r.client+'<br>'+r.status;
+        if(reqMarkers[r.ref]){ reqMarkers[r.ref].setLatLng(pos).setPopupContent(popup); }
+        else { reqMarkers[r.ref] = L.marker(pos, {icon:reqIcon}).addTo(map).bindPopup(popup); }
+      });
+      Object.keys(reqMarkers).forEach(function(ref){ if(!seenR[ref]){ map.removeLayer(reqMarkers[ref]); delete reqMarkers[ref]; } });
+
+      document.getElementById('k-online').textContent = online;
+      document.getElementById('k-busy').textContent = busy;
+      document.getElementById('k-active').textContent = d.interventions.length;
+      document.getElementById('updated').textContent = d.updated;
+    }).catch(function(){});
+  }
+  refresh();
+  setInterval(refresh, 4000);
+})();
+</script>
+{% endblock %}

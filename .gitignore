@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.Python
+
+# Environnements virtuels
+.venv/
+venv/
+env/
+
+# Django
+db.sqlite3
+db.sqlite3-journal
+/media/
+/staticfiles/
+*.log
+local_settings.py
+
+# Outils / IDE
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Fichiers temporaires du projet
+_smoke.py
+_flows.py

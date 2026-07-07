@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load tile_extras %}
+{% block title %}Connexion · TILE ÉNERGIE{% endblock %}
+{% block chatbot %}{% endblock %}
+
+{% block content %}
+<div class="auth">
+
+  <aside class="auth__aside">
+    <p class="eyebrow" style="color:var(--orange)">Espace sécurisé</p>
+    <h2>Bon retour</h2>
+    <p style="margin-top:12px;margin-bottom:36px">Suivez vos interventions solaires, contactez vos techniciens et gérez vos paiements en un seul endroit.</p>
+
+    <div class="flow">
+      <div class="auth__feature">
+        <span class="icon-badge icon-badge--sm">{% icon 'bolt' %}</span>
+        <div>
+          <strong style="color:#fff">Suivi en temps réel</strong>
+          <p style="font-size:.9rem;margin-top:4px">Localisez votre technicien et recevez des mises à jour à chaque étape de l'intervention.</p>
+        </div>
+      </div>
+      <div class="auth__feature">
+        <span class="icon-badge icon-badge--sm">{% icon 'shield' %}</span>
+        <div>
+          <strong style="color:#fff">Techniciens certifiés</strong>
+          <p style="font-size:.9rem;margin-top:4px">Chaque professionnel est vérifié, noté et assuré. Votre installation est entre de bonnes mains.</p>
+        </div>
+      </div>
+      <div class="auth__feature">
+        <span class="icon-badge icon-badge--sm">{% icon 'coins' %}</span>
+        <div>
+          <strong style="color:#fff">Paiement simplifié</strong>
+          <p style="font-size:.9rem;margin-top:4px">Réglez directement depuis votre espace client, après validation de l'intervention.</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="auth__panel">
+    <div class="auth__card">
+      <h2 style="margin-bottom:8px">Se connecter</h2>
+      <p class="text-muted" style="margin-bottom:28px">Accédez à votre espace TILE ÉNERGIE.</p>
+
+      {% if form.non_field_errors %}
+      <ul class="errlist" style="margin-bottom:18px">
+        {% for e in form.non_field_errors %}
+        <li>{% icon 'alert' %}{{ e }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+      <form method="post" action="">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.GET.next }}">
+
+        <div class="field{% if form.username.errors %} field--error{% endif %}">
+          <label for="{{ form.username.id_for_label }}">Email</label>
+          {{ form.username }}
+          {% if form.username.errors %}
+          <ul class="errlist">
+            {% for e in form.username.errors %}
+            <li>{% icon 'alert' %}{{ e }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+
+        <div class="field{% if form.password.errors %} field--error{% endif %}">
+          <div class="flex items-center justify-between" style="margin-bottom:7px">
+            <label for="{{ form.password.id_for_label }}" style="margin-bottom:0">Mot de passe</label>
+            <a href="{% url 'accounts:password_reset' %}" class="text-muted" style="font-size:.85rem">Mot de passe oublié ?</a>
+          </div>
+          {{ form.password }}
+          {% if form.password.errors %}
+          <ul class="errlist">
+            {% for e in form.password.errors %}
+            <li>{% icon 'alert' %}{{ e }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn--primary btn--block btn--lg" style="margin-top:8px">
+          {% icon 'user' %} Se connecter
+        </button>
+      </form>
+
+      <div class="divider"></div>
+
+      <p class="text-center text-muted" style="font-size:.92rem">
+        Pas encore de compte ?
+        <a href="{% url 'accounts:register' %}" class="linkline" style="display:inline-flex">Créer un compte {% icon 'arrow-right' %}</a>
+      </p>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static tile_extras %}
+{% block title %}Questions fréquentes · {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<section class="section section--cream section--tight">
+  <div class="container">
+    <span class="eyebrow">{% icon 'info' %} Aide</span>
+    <h1>Questions fréquentes</h1>
+    <p class="lead max-60 mt-2">Tout ce qu'il faut savoir pour demander un dépannage, payer en toute confiance ou rejoindre le réseau.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container cols-12" style="align-items:flex-start">
+    <div class="col-7" data-reveal>
+      <div class="faq">
+        {% for item in faq %}
+        <div class="faq__item">
+          <button class="faq__q" type="button">{{ item.q }} {% icon 'chevron-down' %}</button>
+          <div class="faq__a"><div class="faq__a-inner">{{ item.a }}</div></div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="col-5" data-reveal data-delay="2">
+      <div class="card card--navy">
+        <span class="icon-badge icon-badge--orange">{% icon 'chat' %}</span>
+        <h3 class="mt-2">Une autre question ?</h3>
+        <p>L'assistant Tila répond immédiatement, en bas à droite de l'écran. Notre équipe prend aussi le relais quand il le faut.</p>
+        <a href="{% url 'website:contact' %}" class="btn btn--primary mt-3">{% icon 'mail' %} Écrire à l'équipe</a>
+      </div>
+      <div class="card mt-3">
+        <h4>Liens utiles</h4>
+        <div class="flow mt-2">
+          <a href="{% url 'interventions:request_create' %}" class="linkline">Demander un dépannage {% icon 'arrow-right' %}</a><br>
+          <a href="{% url 'website:calculateur' %}" class="linkline">Calculateur de dimensionnement {% icon 'arrow-right' %}</a><br>
+          <a href="{% url 'accounts:register' %}" class="linkline">Devenir technicien {% icon 'arrow-right' %}</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

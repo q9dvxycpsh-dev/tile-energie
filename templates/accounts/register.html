@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% load tile_extras %}
+{% block title %}Inscription · TILE ÉNERGIE{% endblock %}
+{% block chatbot %}{% endblock %}
+
+{% block content %}
+<div class="auth">
+
+  <div class="auth__aside">
+    <span class="eyebrow eyebrow--onnavy">{% icon 'sun' %} Bienvenue</span>
+    <h2>Rejoignez TILE ÉNERGIE</h2>
+    <p style="margin-top:14px;margin-bottom:36px">La plateforme qui connecte clients et techniciens solaires qualifiés, partout au Mali.</p>
+
+    <div style="display:flex;flex-direction:column;gap:22px">
+      <div class="auth__feature">
+        <span class="icon-badge icon-badge--sm">{% icon 'shield' %}</span>
+        <div>
+          <h4 style="color:#fff;margin-bottom:4px">Techniciens vérifiés</h4>
+          <p style="font-size:.9rem">Chaque technicien est contrôlé et certifié avant d'intervenir.</p>
+        </div>
+      </div>
+      <div class="auth__feature">
+        <span class="icon-badge icon-badge--sm">{% icon 'navigation' %}</span>
+        <div>
+          <h4 style="color:#fff;margin-bottom:4px">Suivi temps réel</h4>
+          <p style="font-size:.9rem">Suivez votre intervention en direct, de la prise en charge à la fin.</p>
+        </div>
+      </div>
+      <div class="auth__feature">
+        <span class="icon-badge icon-badge--sm">{% icon 'coins' %}</span>
+        <div>
+          <h4 style="color:#fff;margin-bottom:4px">Paiement simple</h4>
+          <p style="font-size:.9rem">Réglez en ligne ou sur place, sans paperasse et en toute sécurité.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="auth__panel">
+    <div class="auth__card">
+      <h2 style="margin-bottom:6px">Créer un compte</h2>
+      <p class="text-muted" style="margin-bottom:28px">Remplissez le formulaire ci-dessous pour commencer.</p>
+
+      {% if form.non_field_errors %}
+        <ul class="errlist" style="margin-bottom:18px">
+          {% for e in form.non_field_errors %}
+            <li>{% icon 'alert' %}{{ e }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="field">
+          <label class="label">Je suis</label>
+          <div class="choice-grid choice-grid--2">
+            {% for val, label in form.role.field.choices %}
+            <label class="choice">
+              <input type="radio" name="role" value="{{ val }}"
+                {% if form.role.value == val %}checked
+                {% elif not form.role.value and val == 'client' %}checked
+                {% endif %}>
+              <span class="choice__box">
+                {% if val == 'client' %}
+                  <span class="icon-badge icon-badge--sm">{% icon 'user' %}</span>
+                {% else %}
+                  <span class="icon-badge icon-badge--sm">{% icon 'hardhat' %}</span>
+                {% endif %}
+                <span>
+                  <h4>{{ label }}</h4>
+                  {% if val == 'client' %}
+                    <p>Je cherche un technicien pour mon installation.</p>
+                  {% else %}
+                    <p>Je propose mes services d'installation ou de dépannage.</p>
+                  {% endif %}
+                </span>
+              </span>
+            </label>
+            {% endfor %}
+          </div>
+          {% if form.role.errors %}
+            <ul class="errlist">
+              {% for e in form.role.errors %}<li>{% icon 'alert' %}{{ e }}</li>{% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+
+        <div class="grid-2up">
+          <div class="field {% if form.first_name.errors %}field--error{% endif %}">
+            <label for="{{ form.first_name.id_for_label }}">Prénom</label>
+            {{ form.first_name }}
+            {% if form.first_name.errors %}
+              <ul class="errlist">
+                {% for e in form.first_name.errors %}<li>{% icon 'alert' %}{{ e }}</li>{% endfor %}
+              </ul>
+            {% endif %}
+          </div>
+          <div class="field {% if form.last_name.errors %}field--error{% endif %}">
+            <label for="{{ form.last_name.id_for_label }}">Nom</label>
+            {{ form.last_name }}
+            {% if form.last_name.errors %}
+              <ul class="errlist">
+                {% for e in form.last_name.errors %}<li>{% icon 'alert' %}{{ e }}</li>{% endfor %}
+              </ul>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="field {% if form.email.errors %}field--error{% endif %}">
+          <label for="{{ form.email.id_for_label }}">Adresse e-mail</label>
+          {{ form.email }}
+          {% if form.email.errors %}
+            <ul class="errlist">
+              {% for e in form.email.errors %}<li>{% icon 'alert' %}{{ e }}</li>{% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+
+        <div class="field {% if form.phone.errors %}field--error{% endif %}">
+          <label for="{{ form.phone.id_for_label }}">Numéro de téléphone</label>
+          {{ form.phone }}
+          {% if form.phone.errors %}
+            <ul class="errlist">
+              {% for e in form.phone.errors %}<li>{% icon 'alert' %}{{ e }}</li>{% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+
+        <div class="field {% if form.password1.errors %}field--error{% endif %}">
+          <label for="{{ form.password1.id_for_label }}">Mot de passe</label>
+          {{ form.password1 }}
+          {% if form.password1.errors %}
+            <ul class="errlist">
+              {% for e in form.password1.errors %}<li>{% icon 'alert' %}{{ e }}</li>{% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+
+        <div class="field {% if form.password2.errors %}field--error{% endif %}">
+          <label for="{{ form.password2.id_for_label }}">Confirmer le mot de passe</label>
+          {{ form.password2 }}
+          {% if form.password2.errors %}
+            <ul class="errlist">
+              {% for e in form.password2.errors %}<li>{% icon 'alert' %}{{ e }}</li>{% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn--primary btn--block btn--lg" style="margin-top:8px">
+          {% icon 'check' %} Créer mon compte
+        </button>
+      </form>
+
+      <p class="text-muted text-center" style="margin-top:22px;font-size:.93rem">
+        Déjà inscrit ? <a href="{% url 'accounts:login' %}" class="linkline" style="font-size:.93rem">Se connecter {% icon 'arrow-right' %}</a>
+      </p>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

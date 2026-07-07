@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load tile_extras %}
+{% block footer %}{% endblock %}
+{% block chatbot %}{% endblock %}
+{% block content %}
+<div class="app">
+  <aside class="side">
+    <div class="side__title">Espace client</div>
+    <a href="{% url 'interventions:client_dashboard' %}" class="side__link">{% icon 'grid' %} Tableau de bord</a>
+    <a href="{% url 'interventions:request_create' %}" class="side__link">{% icon 'plus' %} Nouvelle demande</a>
+    <a href="{% url 'interventions:client_history' %}" class="side__link">{% icon 'list' %} Mes demandes</a>
+    <a href="{% url 'interventions:notifications' %}" class="side__link">{% icon 'bell' %} Notifications {% if nav_notif_unread %}<span class="side__badge">{{ nav_notif_unread }}</span>{% endif %}</a>
+    <a href="{% url 'accounts:profile' %}" class="side__link">{% icon 'user' %} Mon profil</a>
+    <div class="side__title">Aide</div>
+    <a href="{% url 'website:calculateur' %}" class="side__link">{% icon 'calculator' %} Calculateur</a>
+    <a href="{% url 'website:faq' %}" class="side__link">{% icon 'info' %} FAQ</a>
+  </aside>
+  <div class="main">{% block app %}{% endblock %}</div>
+</div>
+{% endblock %}

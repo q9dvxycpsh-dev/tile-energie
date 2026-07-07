@@ -1,0 +1,63 @@
+{% extends 'app/base_admin.html' %}
+{% load tile_extras %}
+{% block title %}Litiges · Administration{% endblock %}
+
+{% block app %}
+<div class="page-head">
+  <div>
+    <h1>Litiges</h1>
+    <p class="sub">Traitez les litiges ouverts entre clients et techniciens.</p>
+  </div>
+</div>
+
+{% if disputes %}
+  {% for d in disputes %}
+  <div class="card card--hard mb-3">
+    <div class="flex items-center justify-between wrap gap-2 mb-2">
+      <div class="flex items-center gap-2 wrap">
+        <span class="ref">{{ d.mission.request.reference }}</span>
+        <span class="badge badge--{{ d.tone }} badge--dot">{{ d.get_state_display }}</span>
+      </div>
+      <div class="flex items-center gap-2 text-muted" style="font-size:.875rem">
+        <span>{% icon 'user' %} {% if d.opened_by %}{{ d.opened_by.display_name }}{% else %}Utilisateur inconnu{% endif %}</span>
+        <span class="nowrap">{% icon 'calendar' %} {{ d.created_at|date:"d/m/Y" }}</span>
+      </div>
+    </div>
+
+    <div class="mb-2">
+      <span class="eyebrow">Motif</span>
+      <p style="margin-top:4px">{{ d.reason }}</p>
+    </div>
+
+    {% if d.resolution %}
+    <div class="divider"></div>
+    <div class="mb-2">
+      <span class="eyebrow">Résolution</span>
+      <p style="margin-top:4px">{{ d.resolution }}</p>
+    </div>
+    {% endif %}
+
+    {% if d.state == 'open' %}
+    <div class="divider"></div>
+    <form method="post" action="{% url 'interventions:admin_dispute_action' pk=d.pk %}">
+      {% csrf_token %}
+      <div class="field mb-3">
+        <label for="resolution-{{ d.pk }}">Résolution</label>
+        <textarea id="resolution-{{ d.pk }}" name="resolution" rows="3" placeholder="Décrivez la décision prise pour ce litige...">{{ d.resolution|default:'' }}</textarea>
+      </div>
+      <div class="flex gap-2 wrap">
+        <button type="submit" name="action" value="resolve" class="btn btn--primary">{% icon 'check-circle' %} Marquer résolu</button>
+        <button type="submit" name="action" value="reject" class="btn btn--ghost">{% icon 'ban' %} Rejeter</button>
+      </div>
+    </form>
+    {% endif %}
+  </div>
+  {% endfor %}
+{% else %}
+  <div class="empty-state">
+    <span class="icon-badge">{% icon 'shield' %}</span>
+    <h3>Aucun litige</h3>
+    <p>Aucun litige enregistré pour le moment. Les litiges ouverts par les clients ou les techniciens apparaîtront ici.</p>
+  </div>
+{% endif %}
+{% endblock %}

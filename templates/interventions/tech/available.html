@@ -1,0 +1,79 @@
+{% extends 'app/base_tech.html' %}
+{% load tile_extras %}
+{% block title %}Demandes disponibles · Espace technicien{% endblock %}
+
+{% block app %}
+<div class="page-head">
+  <div>
+    <h1>Demandes disponibles</h1>
+    <p class="sub">Consultez les missions ouvertes près de vous et acceptez celles qui correspondent à vos compétences.</p>
+  </div>
+</div>
+
+{% if not tp.is_verified %}
+<div class="empty-state card card--hard">
+  <span class="icon-badge">{% icon 'shield' %}</span>
+  <h3>Profil non validé</h3>
+  <p>Votre profil doit être validé par l'équipe TILE avant de pouvoir accepter des missions. Déposez vos documents et attendez la confirmation.</p>
+  <a href="{% url 'interventions:tech_documents' %}" class="btn btn--primary mt-3">{% icon 'file' %} Déposer mes documents</a>
+</div>
+
+{% else %}
+
+{% if requests %}
+<div class="grid grid-2">
+  {% for r in requests %}
+  <div class="card card--lift">
+    <div class="flex items-center justify-between mb-2">
+      {% if r.urgency == 'haute' or r.urgency == 'urgente' %}
+        <span class="badge badge--accent badge--dot">{{ r.get_urgency_display }}</span>
+      {% else %}
+        <span class="badge badge--muted badge--dot">{{ r.get_urgency_display }}</span>
+      {% endif %}
+      <span class="ref">{{ r.reference }}</span>
+    </div>
+
+    <h3 style="margin-bottom:4px">{{ r.title }}</h3>
+    <p class="text-muted" style="margin-bottom:12px">{{ r.skill.name }}</p>
+
+    <div class="flex items-center gap-1 text-muted mb-2">
+      {% icon 'map-pin' %}
+      <span>{{ r.address|default:"Adresse non précisée" }}</span>
+    </div>
+
+    <div class="flex items-center gap-1 text-muted mb-2">
+      {% icon 'navigation' %}
+      <span>
+        {% if r.distance != None %}
+          {{ r.distance }} km
+        {% else %}
+          Distance inconnue
+        {% endif %}
+      </span>
+    </div>
+
+    <div class="flex items-center gap-1 mb-3">
+      {% icon 'coins' %}
+      <strong class="text-navy">{{ r.estimated_cost|fcfa }}</strong>
+    </div>
+
+    <div class="divider"></div>
+
+    <form method="post" action="{% url 'interventions:mission_accept' pk=r.pk %}" style="margin-top:12px">
+      {% csrf_token %}
+      <button type="submit" class="btn btn--primary btn--block">{% icon 'check' %} Accepter la mission</button>
+    </form>
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<div class="empty-state">
+  <span class="icon-badge">{% icon 'bolt' %}</span>
+  <h3>Aucune demande disponible pour le moment</h3>
+  <p>Revenez plus tard, de nouvelles demandes apparaissent régulièrement selon votre zone et vos compétences.</p>
+</div>
+{% endif %}
+
+{% endif %}
+{% endblock %}

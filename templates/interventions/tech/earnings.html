@@ -1,0 +1,77 @@
+{% extends 'app/base_tech.html' %}
+{% load tile_extras %}
+{% block title %}Mes gains · Espace technicien{% endblock %}
+
+{% block app %}
+<div class="page-head">
+  <div>
+    <h1>Mes gains</h1>
+    <p class="sub">Suivi de vos paiements et de vos missions terminées.</p>
+  </div>
+</div>
+
+<div class="kpi-grid kpi-grid--3">
+  <div class="kpi">
+    <div class="kpi__top">
+      <span class="kpi__label">Gains confirmés</span>
+      <span class="icon-badge icon-badge--sm">{% icon 'coins' %}</span>
+    </div>
+    <div class="kpi__num">{{ total|fcfa }}</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi__top">
+      <span class="kpi__label">En attente</span>
+      <span class="icon-badge icon-badge--sm">{% icon 'clock' %}</span>
+    </div>
+    <div class="kpi__num">{{ pending|fcfa }}</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi__top">
+      <span class="kpi__label">Missions terminées</span>
+      <span class="icon-badge icon-badge--sm">{% icon 'check-circle' %}</span>
+    </div>
+    <div class="kpi__num">{{ tp.completed_missions }}</div>
+  </div>
+</div>
+
+<div class="card card--hard">
+  <div class="help-row mb-3">
+    <h3 style="margin:0">Historique des paiements</h3>
+  </div>
+  {% if payments %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Référence</th>
+          <th>Demande</th>
+          <th>Méthode</th>
+          <th>Montant</th>
+          <th>Statut</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in payments %}
+        <tr>
+          <td class="ref nowrap">{{ p.reference }}</td>
+          <td class="ref">{{ p.mission.request.reference }}</td>
+          <td class="text-muted">{{ p.get_method_display }}</td>
+          <td class="nowrap">{{ p.amount|fcfa }}</td>
+          <td><span class="badge badge--{{ p.tone }}">{{ p.get_state_display }}</span></td>
+          <td class="text-muted nowrap">{{ p.created_at|date:"d/m/Y" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <span class="icon-badge">{% icon 'coins' %}</span>
+    <h3>Aucun paiement enregistré</h3>
+    <p>Vos paiements apparaîtront ici une fois vos missions terminées et validées.</p>
+    <a href="{% url 'interventions:tech_available' %}" class="btn btn--primary mt-3">{% icon 'bolt' %} Voir les demandes</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

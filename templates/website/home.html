@@ -1,0 +1,322 @@
+{% extends 'base.html' %}
+{% load static tile_extras %}
+
+{% block content %}
+<!-- ============================ HERO ============================ -->
+<section class="hero" data-hero>
+  <div class="hero__bg">
+    <div class="hero__slide is-active">
+  <img src="{% static 'img/solar-panels-roof-solar-cell.jpg' %}?v=3" alt="Panneaux solaires sur toiture">
+</div>
+<div class="hero__slide">
+  <img src="{% static 'img/african-american-technician-checks-maintenance-solar-panels-group-three-black-engineers-meeting-solar-station.jpg' %}?v=3" alt="Équipe de techniciens sur une station solaire">
+</div>
+<div class="hero__slide">
+  <img src="{% static 'img/technician-engineer-checks-maintenance-solar-cell-panels.jpg' %}?v=3" alt="Technicien contrôlant des panneaux solaires">
+</div>
+  </div>
+  <div class="hero__veil"></div>
+
+  <div class="container hero__inner">
+    <div class="cols-12">
+      <div class="col-7">
+        <span class="eyebrow eyebrow--onnavy">{% icon 'spark' %} Plateforme de dépannage solaire</span>
+        <h1>Un technicien solaire qualifié, <span class="hl">près de chez vous</span>.</h1>
+        <p class="lead hero__lead">TILE ÉNERGIE connecte particuliers, commerces et entreprises avec des techniciens vérifiés pour installer, entretenir et dépanner vos systèmes solaires. Vous suivez chaque intervention en temps réel.</p>
+        <div class="hero__cta">
+          <a href="{% url 'interventions:request_create' %}" class="btn btn--primary btn--lg">{% icon 'bolt' %} Demander un dépannage</a>
+          <a href="{% url 'website:apropos' %}" class="btn btn--outline-light btn--lg">Découvrir le service {% icon 'arrow-right' %}</a>
+        </div>
+        <div class="hero__meta">
+          <div><div class="k">35 min</div><div class="l">Délai moyen d'arrivée</div></div>
+          <div><div class="k">48</div><div class="l">Techniciens du réseau</div></div>
+          <div><div class="k">4.8/5</div><div class="l">Satisfaction client</div></div>
+        </div>
+      </div>
+
+      <div class="col-5">
+        <div class="hero-card float" aria-hidden="true">
+          <div class="flex items-center justify-between" style="margin-bottom:8px">
+            <span class="badge badge--accent badge--dot">En route</span>
+            <span class="text-muted" style="font-size:.82rem">TILE-7F3A2C</span>
+          </div>
+          <div class="hero-card__row">
+            <span class="avatar avatar--orange">MK</span>
+            <div style="flex:1">
+              <strong style="font-family:var(--font-display);color:var(--navy)">Moussa Keïta</strong>
+              <div class="stars">{% icon 'star' %}{% icon 'star' %}{% icon 'star' %}{% icon 'star' %}{% icon 'star' %}</div>
+            </div>
+            <a href="#" class="icon-badge icon-badge--sm icon-badge--cream" aria-label="Appeler">{% icon 'phone' %}</a>
+          </div>
+          <div class="hero-card__row">
+            <span class="icon-badge icon-badge--sm">{% icon 'navigation' %}</span>
+            <div><strong style="color:var(--navy)">Arrivée estimée</strong><div class="text-muted" style="font-size:.85rem">Dans 12 minutes, à 2,4 km</div></div>
+          </div>
+          <div class="track" style="margin-top:6px">
+            <div class="track__step done"><span class="track__dot">{% icon 'check' %}</span><div><div class="track__label">Demande acceptée</div></div></div>
+            <div class="track__step current"><span class="track__dot">{% icon 'navigation' %}</span><div><div class="track__label">Technicien en route</div></div></div>
+            <div class="track__step"><span class="track__dot">{% icon 'map-pin' %}</span><div><div class="track__label">Sur site</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero__dots">
+    <button class="hero__dot is-active" aria-label="Image 1"></button>
+    <button class="hero__dot" aria-label="Image 2"></button>
+    <button class="hero__dot" aria-label="Image 3"></button>
+  </div>
+</section>
+
+<!-- ============================ MARQUEE ============================ -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee__track">
+    {% for i in '12'|make_list %}
+    <span class="marquee__item">{% icon 'panel' %} Installation de panneaux</span>
+    <span class="marquee__item">{% icon 'battery' %} Réparation de batteries</span>
+    <span class="marquee__item">{% icon 'plug' %} Onduleurs et régulateurs</span>
+    <span class="marquee__item">{% icon 'gauge' %} Diagnostic de pannes</span>
+    <span class="marquee__item">{% icon 'leaf' %} Optimisation d'énergie</span>
+    <span class="marquee__item">{% icon 'shield' %} Techniciens vérifiés</span>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- ============================ PROBLÈME / SOLUTION ============================ -->
+<section class="section section--cream">
+  <div class="container cols-12">
+    <div class="col-6" data-reveal>
+      <span class="eyebrow">{% icon 'target' %} Le contexte</span>
+      <h2>Trouver un bon technicien solaire ne devrait pas être un parcours du combattant.</h2>
+      <p class="lead mt-2">L'énergie solaire se développe vite au Mali. Mais en cas de panne ou pour une nouvelle installation, il reste difficile de joindre rapidement un professionnel qualifié et fiable.</p>
+      <div class="flow mt-3">
+        <div class="flex gap-2 items-center"><span class="icon-badge icon-badge--sm icon-badge--orange">{% icon 'x' %}</span><div><strong class="text-navy">Avant</strong><div class="text-muted">Bouche-à-oreille, attente, prix opaques, qualité incertaine.</div></div></div>
+        <div class="flex gap-2 items-center"><span class="icon-badge icon-badge--sm">{% icon 'check' %}</span><div><strong class="text-navy">Avec TILE ÉNERGIE</strong><div class="text-muted">Un technicien proche, vérifié, suivi en temps réel et payé en toute transparence.</div></div></div>
+      </div>
+      <a href="{% url 'website:apropos' %}" class="linkline mt-3">Comprendre notre approche {% icon 'arrow-right' %}</a>
+    </div>
+    <div class="col-6" data-reveal data-delay="2">
+      <div class="media-frame media-frame--tall">
+        <picture><source srcset="{% static 'img/opt/hero-technicien-md.webp' %}" type="image/webp">
+          <img src="{% static 'images/technicien-tile-energie-bamako.jpg' %}" alt="Techniciens TILE ÉNERGIE sur une station solaire" style="width:100%; height:100%; object-fit:cover; border-radius:12px;">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ SERVICES ============================ -->
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">{% icon 'wrench' %} Nos domaines</span>
+      <h2>Tout ce dont votre installation solaire a besoin.</h2>
+      <p class="lead">Des techniciens formés et spécialisés interviennent sur l'ensemble de la chaîne solaire, de la pose au dépannage.</p>
+    </div>
+    <div class="grid grid-3">
+      {% for s in skills %}
+      <div class="card card--lift feature" data-reveal data-delay="{{ forloop.counter0|add:1 }}">
+        <span class="icon-badge">{% icon s.icon %}</span>
+        <h3>{{ s.name }}</h3>
+        <p class="text-muted">{{ s.description }}</p>
+        <a href="{% url 'interventions:request_create' %}" class="linkline" style="margin-top:auto">Demander ce service {% icon 'arrow-right' %}</a>
+      </div>
+      {% endfor %}
+      <div class="card card--navy feature" data-reveal data-delay="5">
+        <span class="icon-badge icon-badge--orange">{% icon 'headset' %}</span>
+        <h3>Une urgence ?</h3>
+        <p>Notre réseau couvre Bamako 7j/7. Envoyez votre demande, on s'occupe du reste.</p>
+        <a href="{% url 'interventions:request_create' %}" class="btn btn--primary" style="margin-top:auto">{% icon 'bolt' %} Intervenir maintenant</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ GALERIE QUI DÉFILE ============================ -->
+<section class="section section--cream">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">{% icon 'image' %} Sur le terrain</span>
+      <h2>Nos interventions en images.</h2>
+    </div>
+    <div class="slider" data-slider>
+      <div class="slider__viewport">
+        <div class="slider__track">
+          {% for g in gallery %}
+          <article class="slide">
+            <div class="slide__img">
+              <picture><source srcset="{% static 'img/opt/'|add:g.img|add:'-md.webp' %}" type="image/webp">
+                <img src="{% static 'img/opt/'|add:g.img|add:'-md.jpg' %}" alt="{{ g.title }}"></picture>
+            </div>
+            <div class="slide__cap"><div class="t">{{ g.title }}</div><div class="s">{{ g.sub }}</div></div>
+          </article>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="slider__foot">
+        <div class="slider__dots" data-slider-dots></div>
+        <div class="slider__nav">
+          <button class="slider__btn" data-slider-prev aria-label="Précédent">{% icon 'chevron-right' 'flip' %}</button>
+          <button class="slider__btn" data-slider-next aria-label="Suivant">{% icon 'chevron-right' %}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ COMMENT ÇA MARCHE ============================ -->
+<section class="section section--navy">
+  <div class="container cols-12">
+    <div class="col-5" data-reveal>
+      <span class="eyebrow eyebrow--light">{% icon 'route' %} Comment ça marche</span>
+      <h2>Quatre étapes, zéro mauvaise surprise.</h2>
+      <p>De la demande au paiement, tout est pensé pour être simple, rapide et transparent, même sur une connexion mobile.</p>
+      <a href="{% url 'interventions:request_create' %}" class="btn btn--primary mt-3">{% icon 'arrow-right' %} Lancer une demande</a>
+    </div>
+    <div class="col-7">
+      <div class="steps">
+        {% for st in steps %}
+        <div class="step" data-reveal data-delay="{{ forloop.counter }}">
+          <h4>{{ st.title }}</h4>
+          <p>{{ st.text }}</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ CHIFFRES ============================ -->
+<section class="section section--tight">
+  <div class="container">
+    <div class="grid grid-4">
+      {% for s in stats %}
+      <div class="stat text-center" data-reveal data-delay="{{ forloop.counter }}">
+        <div class="stat__num" data-count="{{ s.count }}" data-suffix="{{ s.suffix }}">0</div>
+        <div class="stat__label">{{ s.label }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ============================ AVANTAGES ============================ -->
+<section class="section section--cream">
+  <div class="container">
+    <div class="section-head center">
+      <span class="eyebrow">{% icon 'handshake' %} Pour tout le monde</span>
+      <h2>Une plateforme qui profite à chacun.</h2>
+    </div>
+    <div class="grid grid-3">
+      <div class="card card--hard" data-reveal>
+        <span class="badge badge--accent mb-2">Clients</span>
+        <div class="flow">
+          {% for a in advantages.client %}
+          <div class="flex gap-2 items-center"><span class="icon-badge icon-badge--sm icon-badge--cream">{% icon a.icon %}</span><div><strong class="text-navy">{{ a.title }}</strong><div class="text-muted" style="font-size:.92rem">{{ a.text }}</div></div></div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="card card--hard" data-reveal data-delay="2">
+        <span class="badge badge--success mb-2">Techniciens</span>
+        <div class="flow">
+          {% for a in advantages.tech %}
+          <div class="flex gap-2 items-center"><span class="icon-badge icon-badge--sm icon-badge--cream">{% icon a.icon %}</span><div><strong class="text-navy">{{ a.title }}</strong><div class="text-muted" style="font-size:.92rem">{{ a.text }}</div></div></div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="card card--hard" data-reveal data-delay="3">
+        <span class="badge badge--info mb-2">Société</span>
+        <div class="flow">
+          {% for a in advantages.society %}
+          <div class="flex gap-2 items-center"><span class="icon-badge icon-badge--sm icon-badge--cream">{% icon a.icon %}</span><div><strong class="text-navy">{{ a.title }}</strong><div class="text-muted" style="font-size:.92rem">{{ a.text }}</div></div></div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% if technicians %}
+<!-- ============================ TECHNICIENS ============================ -->
+<section class="section">
+  <div class="container">
+    <div class="section-head"><span class="eyebrow">{% icon 'users' %} Le réseau</span><h2>Des professionnels vérifiés et notés.</h2></div>
+    <div class="grid grid-3">
+      {% for t in technicians %}
+      <div class="card card--lift" data-reveal data-delay="{{ forloop.counter }}">
+        <div class="flex gap-2 items-center mb-2">
+          <span class="avatar avatar--lg avatar--orange">{{ t.user.initials }}</span>
+          <div><strong class="text-navy" style="font-family:var(--font-display);font-size:1.1rem">{{ t.user.display_name }}</strong>
+            <div class="stars">{% for s in t.stars %}{% if s == 'full' %}{% icon 'star' %}{% elif s == 'half' %}{% icon 'star-half' %}{% else %}{% icon 'star-outline' %}{% endif %}{% endfor %}</div>
+            <div class="text-muted" style="font-size:.85rem">{{ t.completed_missions }} missions · {{ t.zones }}</div>
+          </div>
+        </div>
+        <div class="tag-row">{% for sk in t.skills.all %}<span class="pill">{% icon sk.icon %} {{ sk.name }}</span>{% endfor %}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ============================ TÉMOIGNAGES ============================ -->
+<section class="section section--cream">
+  <div class="container">
+    <div class="section-head"><span class="eyebrow">{% icon 'quote' %} Ils nous font confiance</span><h2>Ce que disent nos clients.</h2></div>
+    <div class="grid grid-2">
+      {% for t in testimonials %}
+      <div class="quote-card" data-reveal data-delay="{{ forloop.counter }}">
+        {% icon 'quote' 'icon-quote' %}
+        <p>{{ t.text }}</p>
+        <div class="stars">{% for s in t.rating|to_stars %}{% if s == 'full' %}{% icon 'star' %}{% else %}{% icon 'star-outline' %}{% endif %}{% endfor %}</div>
+        <div class="quote-card__who">
+          <span class="avatar">{{ t.name|slice:':1' }}</span>
+          <div><strong class="text-navy">{{ t.name }}</strong><div class="text-muted" style="font-size:.86rem">{{ t.role }} · {{ t.city }}</div></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FAQ TEASER ============================ -->
+<section class="section">
+  <div class="container cols-12">
+    <div class="col-5" data-reveal>
+      <span class="eyebrow">{% icon 'info' %} Questions fréquentes</span>
+      <h2>Vous vous posez sûrement ces questions.</h2>
+      <p class="lead">On répond à l'essentiel. Pour le reste, l'assistant Tila et notre équipe sont là.</p>
+      <a href="{% url 'website:faq' %}" class="btn btn--navy mt-3">Toutes les questions {% icon 'arrow-right' %}</a>
+    </div>
+    <div class="col-7" data-reveal data-delay="2">
+      <div class="faq">
+        {% for item in faq %}
+        <div class="faq__item">
+          <button class="faq__q" type="button">{{ item.q }} {% icon 'chevron-down' %}</button>
+          <div class="faq__a"><div class="faq__a-inner">{{ item.a }}</div></div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ CTA ============================ -->
+<section class="section section--tight">
+  <div class="container">
+    <div class="cta-band" data-reveal>
+      <span class="cta-band__deco">{% icon 'sun' %}</span>
+      <div class="cols-12">
+        <div class="col-8">
+          <h2>Votre énergie solaire, entre de bonnes mains.</h2>
+          <p style="color:#3a2406;max-width:52ch">Créez votre compte en deux minutes et trouvez un technicien dès aujourd'hui. Vous êtes professionnel du solaire ? Rejoignez le réseau.</p>
+        </div>
+        <div class="col-4 flex gap-2 wrap" style="align-items:center">
+          <a href="{% url 'interventions:request_create' %}" class="btn btn--navy btn--lg">{% icon 'bolt' %} Demander un dépannage</a>
+          <a href="{% url 'accounts:register' %}" class="btn btn--ghost btn--lg" style="border-color:var(--navy)">Devenir technicien</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

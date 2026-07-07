@@ -1,0 +1,164 @@
+{% extends 'app/base_tech.html' %}
+{% load tile_extras %}
+{% block title %}Tableau de bord · Espace technicien{% endblock %}
+
+{% block app %}
+
+{% if tp.verification == 'pending' %}
+<div class="card mb-3" style="border:2px solid var(--info)">
+  <div class="flex gap-2 items-center">
+    <span class="icon-badge icon-badge--sm">{% icon 'info' %}</span>
+    <div style="flex:1">
+      <strong>Profil en attente de validation</strong>
+      <p class="text-muted" style="margin:4px 0 0">Votre compte est en cours d'examen par notre équipe. Déposez vos documents pour accélérer la validation.</p>
+    </div>
+    <a href="{% url 'interventions:tech_documents' %}" class="btn btn--navy btn--sm">{% icon 'file' %} Mes documents</a>
+  </div>
+</div>
+{% elif tp.verification == 'rejected' %}
+<div class="card mb-3" style="border:2px solid var(--danger)">
+  <div class="flex gap-2 items-center">
+    <span class="icon-badge icon-badge--sm">{% icon 'x-circle' %}</span>
+    <div style="flex:1">
+      <strong>Profil rejeté</strong>
+      <p class="text-muted" style="margin:4px 0 0">Votre dossier n'a pas été validé. Mettez à jour vos documents et soumettez-les à nouveau.</p>
+    </div>
+    <a href="{% url 'interventions:tech_documents' %}" class="btn btn--ghost btn--sm">{% icon 'file' %} Mettre à jour</a>
+  </div>
+</div>
+{% endif %}
+
+<div class="page-head">
+  <div>
+    <h1>Bonjour, {{ user.first_name|default:user.display_name }}</h1>
+    <p class="sub">
+      Statut actuel :
+      {% if tp.availability == 'available' %}
+        <span class="badge badge--success badge--dot">{{ tp.get_availability_display }}</span>
+      {% elif tp.availability == 'busy' %}
+        <span class="badge badge--accent badge--dot">{{ tp.get_availability_display }}</span>
+      {% else %}
+        <span class="badge badge--muted badge--dot">{{ tp.get_availability_display }}</span>
+      {% endif %}
+    </p>
+  </div>
+  <form method="post" action="{% url 'interventions:tech_availability' %}" class="flex gap-2 items-center wrap">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{% url 'interventions:tech_dashboard' %}">
+    <select name="availability">
+      <option value="available" {% if tp.availability == 'available' %}selected{% endif %}>Disponible</option>
+      <option value="busy" {% if tp.availability == 'busy' %}selected{% endif %}>Occupé</option>
+      <option value="offline" {% if tp.availability == 'offline' %}selected{% endif %}>Hors ligne</option>
+    </select>
+    <button type="submit" class="btn btn--primary btn--sm">{% icon 'refresh' %} Mettre à jour</button>
+  </form>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi">
+    <div class="kpi__top">
+      <span class="kpi__label">Missions actives</span>
+      <span class="icon-badge icon-badge--sm">{% icon 'route' %}</span>
+    </div>
+    <div class="kpi__num">{{ kpi_active }}</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi__top">
+      <span class="kpi__label">Missions terminées</span>
+      <span class="icon-badge icon-badge--sm">{% icon 'check-circle' %}</span>
+    </div>
+    <div class="kpi__num">{{ kpi_done }}</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi__top">
+      <span class="kpi__label">Gains</span>
+      <span class="icon-badge icon-badge--sm">{% icon 'coins' %}</span>
+    </div>
+    <div class="kpi__num">{{ kpi_earnings|fcfa }}</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi__top">
+      <span class="kpi__label">Note</span>
+      <span class="icon-badge icon-badge--sm">{% icon 'star' %}</span>
+    </div>
+    <div class="kpi__num">
+      {{ kpi_rating }}/5
+      <div class="stars" style="font-size:.9rem;margin-top:4px">
+        {% for s in kpi_rating|to_stars %}
+          {% if s == 'full' %}{% icon 'star' %}{% else %}{% icon 'star-outline' %}{% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if current %}
+<div class="card card--hard mb-3">
+  <div class="flex justify-between items-center wrap mb-2">
+    <div class="eyebrow">Mission en cours</div>
+    <span class="badge badge--{{ current.request.tone }} badge--dot">{{ current.request.get_status_display }}</span>
+  </div>
+  <h3 style="margin:0 0 4px">{{ current.request.title }}</h3>
+  <p class="text-muted ref" style="margin:0 0 16px">{{ current.request.reference }}</p>
+  <a href="{% url 'interventions:mission_detail' pk=current.pk %}" class="btn btn--primary btn--sm">{% icon 'navigation' %} Ouvrir la mission</a>
+</div>
+{% endif %}
+
+<div class="card mb-3">
+  <div class="flex justify-between items-center wrap">
+    <div>
+      <h3 style="margin:0 0 4px">Demandes disponibles</h3>
+      <p class="text-muted" style="margin:0">
+        {% if available_count > 0 %}
+          {{ available_count }} demande{{ available_count|pluralize }} en attente d'un technicien.
+        {% else %}
+          Aucune demande disponible pour l'instant.
+        {% endif %}
+      </p>
+    </div>
+    <a href="{% url 'interventions:tech_available' %}" class="btn btn--navy btn--sm">{% icon 'bolt' %} Voir les demandes</a>
+  </div>
+</div>
+
+<div class="card">
+  <div class="flex justify-between items-center mb-3">
+    <h3 style="margin:0">Missions récentes</h3>
+    <a href="{% url 'interventions:tech_earnings' %}" class="linkline">Tout voir {% icon 'arrow-right' %}</a>
+  </div>
+
+  {% if recent %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Référence</th>
+          <th>Client</th>
+          <th>Statut</th>
+          <th>Date</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in recent %}
+        <tr>
+          <td class="ref">{{ m.request.reference }}</td>
+          <td>{{ m.request.client.display_name }}</td>
+          <td><span class="badge badge--{{ m.tone }}">{{ m.get_status_display }}</span></td>
+          <td class="text-muted nowrap">{{ m.created_at|date:"d/m/Y" }}</td>
+          <td><a href="{% url 'interventions:mission_detail' pk=m.pk %}" class="btn btn--ghost btn--sm">Détail</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <span class="icon-badge">{% icon 'hardhat' %}</span>
+    <h3>Aucune mission récente</h3>
+    <p>Consultez les demandes disponibles et acceptez votre prochaine mission.</p>
+    <a href="{% url 'interventions:tech_available' %}" class="btn btn--primary mt-3">{% icon 'bolt' %} Voir les demandes</a>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}
