@@ -672,3 +672,28 @@ textarea { min-height: 130px; resize: vertical; }
     height: 44px;
   }
 }
+
+
+@media (max-width: 768px) {
+  .brand__sub {
+    display: none; /* cache "Ingénierie du dépannage" */
+  }
+  .brand__name {
+    font-size: 1.05rem;
+    white-space: nowrap; /* "TILE ÉNERGIE" reste sur une ligne */
+  }
+  .brand__logo {
+    height: 40px;
+    width: auto;
+  }
+}
+
+/* --- 2. Tableau des appareils : scroll horizontal fluide --- */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.table-scroll table {
+  min-width: 560px; /* colonnes intactes, on scrolle au doigt */
+  width: 100%;
+}

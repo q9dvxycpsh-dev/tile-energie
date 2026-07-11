@@ -12,7 +12,10 @@
     { name: 'Box internet', w: 15, h: 24 },
     { name: 'Ordinateur', w: 120, h: 6 },
     { name: 'Pompe à eau', w: 750, h: 2 },
-    { name: 'Climatiseur', w: 1200, h: 6 },
+    { name: 'Climatiseur 0,75 CV (9 000 BTU)', w: 800, h: 6 },
+    { name: 'Climatiseur 1 CV (12 000 BTU)', w: 1100, h: 6 },
+    { name: 'Climatiseur 1,5 CV (18 000 BTU)', w: 1600, h: 6 },
+    { name: 'Climatiseur 2 CV (24 000 BTU)', w: 2200, h: 6 },
     { name: 'Machine à laver', w: 500, h: 1 },
     { name: 'Chargeur téléphone', w: 10, h: 3 },
   ];
@@ -28,7 +31,8 @@
 
   const presetSel = $('#preset');
   const body = $('#appliance-body');
-  const LOSS = 1.3, PF = 0.8;
+ // Un panneau ne produit que ~75 % de sa puissance nominale
+  const RENDEMENT_PANNEAU = 0.75, PF = 0.8;
   const fmt = (n) => Math.round(n).toLocaleString('fr-FR');
 
   function fillPresets() {
@@ -65,7 +69,7 @@
     const autonomy = parseFloat($('#autonomy').value);
     const panelWp = Math.max(50, parseFloat($('#panelwp').value) || 450);
 
-    const requiredWp = dailyWh * LOSS / psh;
+    const requiredWp = dailyWh / (psh * RENDEMENT_PANNEAU);
     const panels = Math.max(0, Math.ceil(requiredWp / panelWp));
     const actualWp = panels * panelWp;
 
