@@ -52,9 +52,9 @@
     <!-- INFO + MAP -->
     <div class="col-6">
       <div class="grid" style="gap:16px">
-        <div class="card flex gap-2 items-center"><span class="icon-badge">{% icon 'map-pin' %}</span><div><strong class="text-navy">Adresse</strong><div class="text-muted">ACI 2000, Bamako, Mali</div></div></div>
+        <div class="card flex gap-2 items-center"><span class="icon-badge">{% icon 'map-pin' %}</span><div><strong class="text-navy">Adresse</strong><div class="text-muted">Baco Djicoroni Golf, Bamako</div></div></div>
         <div class="grid grid-2" style="gap:16px">
-          <div class="card flex gap-2 items-center"><span class="icon-badge icon-badge--sm">{% icon 'phone' %}</span><div><strong class="text-navy">Téléphone</strong><div class="text-muted">+223 00 00 00 00</div></div></div>
+          <div class="card flex gap-2 items-center"><span class="icon-badge icon-badge--sm">{% icon 'phone' %}</span><div><strong class="text-navy">Téléphone</strong><div class="text-muted">+223 82 01 14 07</div></div></div>
           <div class="card flex gap-2 items-center"><span class="icon-badge icon-badge--sm">{% icon 'clock' %}</span><div><strong class="text-navy">Horaires</strong><div class="text-muted">7j/7, 7h à 21h</div></div></div>
         </div>
       </div>
@@ -71,14 +71,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
 (function(){
-  var c = 12.6392, lng = -8.0029; // ACI 2000, Bamako
+  var c = 12.5834, lng = -8.0293; // Baco Djicoroni Golf, Bamako
   var map = L.map('contact-map', {scrollWheelZoom:false}).setView([c, lng], 14);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19, attribution: '&copy; OpenStreetMap'
   }).addTo(map);
   setTimeout(function(){ map.invalidateSize(); }, 250);
   var icon = L.divIcon({className:'', html:'<div class="tech-marker busy" style="width:24px;height:24px"></div>', iconSize:[24,24], iconAnchor:[12,12]});
-  L.marker([c, lng], {icon:icon}).addTo(map).bindPopup('<b>TILE ÉNERGIE</b><br>ACI 2000, Bamako').openPopup();
+  L.marker([c, lng], {icon:icon}).addTo(map).bindPopup('<b>TILE ÉNERGIE</b><br>Baco Djicoroni Golf, Bamako').openPopup();
 })();
 </script>
 {% endblock %}
